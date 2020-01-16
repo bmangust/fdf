@@ -1,4 +1,14 @@
-
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   fdf.h                                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: akraig <akraig@student.21-school.ru>       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/11/22 20:43:18 by akraig            #+#    #+#             */
+/*   Updated: 2020/01/16 20:57:34 by akraig           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #ifndef FDF_H
 # define FDF_H
@@ -14,8 +24,17 @@
 # include "libft.h"
 # include "mlx.h"
 
+/*
+**	RETURN STATUS
+*/
+
 # define ERROR -1
 # define OK 1
+
+/*
+**	KEYS
+*/
+
 # define LEFT 123
 # define RIGHT 124
 # define DOWN 125
@@ -31,6 +50,10 @@
 # define NUM8 91
 # define NUM9 92
 # define ESC 53
+# define P_KEY 35
+# define R_KEY 15
+# define W_KEY 13
+# define Q_KEY 12
 # define CLOSE 17
 # define LMB 1
 # define RMB 2
@@ -42,21 +65,36 @@
 # define NUMMINUS 78
 # define PLUS 24
 # define MINUS 27
-# define XBIAS 200
-# define YBIAS 100
+
+/*
+**	GLOBAL CONSTANTS
+*/
+
+# define IMAGE_WIDTH 1000
+# define IMAGE_HEIGHT 1000
+# define XBIAS IMAGE_WIDTH / 2
+# define YBIAS IMAGE_HEIGHT / 2
 # define STEP 1
-# define SHIFTX (int[3]) {STEP, 0, 0}
-# define SHIFTNX (int[3]) {-STEP, 0, 0}
-# define SHIFTY (int[3]) {0, STEP, 0}
-# define SHIFTNY (int[3]) {0, -STEP, 0}
-# define SHIFTZ (int[3]) {0, 0, STEP}
-# define SHIFTNZ (int[3]) {0, 0, -STEP}
-# define TRUEISO 0.523599
-# define ISO21 0.46373398
+# define SHIFTX (float[3]) {STEP, 0, 0}
+# define SHIFTNX (float[3]) {-STEP, 0, 0}
+# define SHIFTY (float[3]) {0, STEP, 0}
+# define SHIFTNY (float[3]) {0, -STEP, 0}
+# define SHIFTZ (float[3]) {0, 0, STEP}
+# define SHIFTNZ (float[3]) {0, 0, -STEP}
+# define SCALEZ (float[3]) {0, 0, 1.3}
+# define SCALENZ (float[3]) {0, 0, 0.3}
+# define TRUEISO_ANGLE 0.523599
+# define ISO21_ANGLE 0.46373398
 # define ROT_ANGLE 0.0872664626	//5deg
+
+# define TRUEISO 1 << 0
+# define ISO21 1 << 1
+# define PERSPECTIVE 1 << 2
+
 //# define EDOM
 //# define EILSEQ
 //# define ERANGE
+
 extern int			errno;
 
 typedef struct		s_window
@@ -74,8 +112,6 @@ typedef struct		s_coord
 {
 	int				x;
 	int				y;
-	int				width;
-	int				height;
 }					t_coord;
 
 typedef struct		s_dot
@@ -90,12 +126,20 @@ typedef struct		s_dot
 	struct s_dot	*prev;
 }					t_dot;
 
+typedef struct		s_cam
+{
+	double			x;
+	double			y;
+	double			z;
+}					t_cam;
+
 typedef struct		s_map
 {
 	int				width;
 	int				height;
-	int				min_z;
-	int				max_z;
+	double			min_z;
+	double			max_z;
+	int 			**coords;
 	t_dot			*dot;
 }					t_map;
 
@@ -104,29 +148,40 @@ typedef struct		s_fdf
 	t_window		*window;
 	t_coord			*coord;
 	t_map			*map;
+	t_map			*transform;
+	t_map			*proj;
+	double			anglex;
+	double			angley;
+	double			anglez;
 	int				zscale;
 	int				xyscale;
 	int				bits_per_pixel;
 	int				size_line;
 	int				endian;
+	double			distance;
+	int				type_of_proj;
 }					t_fdf;
 
 int			input(char *file, t_map *map);
 t_map		*new_map(void);
 t_window	*new_window(void *mlx, void *win, void *img, int width, int height);
-t_fdf		*new_fdf(t_window *window, t_coord *coord, t_map *map);
-t_coord		*new_coord(int x, int y, int height, int width);
+t_fdf		*new_fdf(t_window *window, t_map *map);
+t_coord		*new_coord(int x, int y);
+t_dot		*new_dot(int x, int y, int z);
+t_dot		*add_last_dot(t_dot **head, t_dot *new);
 t_dot		*create_row(char *line, t_map *map, int y);
 void		attach_row(t_dot **header, t_dot *row);
 
 void 		key_hooks(t_fdf *fdf);
-void		update_figure(int const *shift, t_fdf *fdf,
-			void(*f)(int const *shift, t_dot *dot));
-void		rotate(int const *shift, t_dot *tmp);
-void		shift_figure(int const *shift, t_dot *dot);
-void		change_height(int const *shift, t_dot *dot);
+void		update_figure(float const *shift, t_fdf *fdf,
+			void(*f)(float const *shift, t_dot *dot, t_dot*, t_fdf *fdf));
+void		rotate(float const *shift, t_dot *dst, t_dot *src, t_fdf *fdf);
+void		shift_figure(float const *shift, t_dot *dot, t_dot *dst, t_fdf *fdf);
+void		change_height(float const *shift, t_dot *dot, t_dot *dst, t_fdf *fdf);
+void		reset_transform(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf);
+
 int			click_line(int button, int x, int y, t_fdf *fdf);
-void		draw_line(int x1, int y1, t_fdf *fdf);
+void		draw_line(t_dot dot1, t_dot dot2, t_fdf *fdf);
 int			draw(t_fdf *fdf);
 void 		clear_img(void *img, int width, int height, t_fdf *fdf);
 
@@ -134,6 +189,19 @@ int			find_next_number(char *line, int i);
 int			get_coordinates(char *file, t_map *map, char *line);
 
 void		initialize_coord(t_coord *new, int x, int y, int color);
+void        clear_map(t_map *map);
 void		terminate(t_fdf *fdf);
 int			close_w(void *param);
+
+//int		*matmul(int **a, int *b);
+void		copy_map(t_map *map, t_map *dest);
+void		matmul(double **matrix, t_dot *src, t_dot *dst);
+void		transform(double **matrix, t_map *map, t_map *dest_map);
+double		**rotation_x(double angle);
+double		**rotation_y(double angle);
+double		**rotation_z(double angle);
+void		delete_matrix(double **matrix);
+void		project_perspective(t_dot *src, t_dot *dest, double proj_angle, t_fdf *fdf);
+
+double		**create_matrix();
 #endif

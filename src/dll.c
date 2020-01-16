@@ -6,7 +6,7 @@
 /*   By: akraig <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/14 20:03:27 by akraig            #+#    #+#             */
-/*   Updated: 2019/11/21 19:29:19 by akraig           ###   ########.fr       */
+/*   Updated: 2020/01/12 13:05:08 by akraig           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,9 +69,10 @@ t_dot	*create_row(char *line, t_map *map, int y)
 		return (NULL);
 	while (line[i[0]])
 	{
-		if (!(new = new_dot(i[1], y, ft_atoi(&line[i[0]]))))
+		if (!(new = new_dot(i[1] - map->width / 2,
+				y - map->height / 2, ft_atoi(&line[i[0]]) / 2)))
 		{
-			//delete row
+            clear_map(map);
 			return (NULL);
 		}
 		if (map->max_z < new->z)

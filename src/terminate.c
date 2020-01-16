@@ -6,19 +6,19 @@
 /*   By: akraig <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/22 20:43:18 by akraig            #+#    #+#             */
-/*   Updated: 2019/11/24 17:15:36 by akraig           ###   ########.fr       */
+/*   Updated: 2020/01/10 18:55:26 by akraig           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fdf.h"
 
-void	clear_map(t_fdf *fdf)
+void    clear_map(t_map *map)
 {
 	t_dot	*tmp;
 	t_dot	*next;
 	t_dot	*row;
 
-	tmp = fdf->map->dot;
+	tmp = map->dot;
 	while (tmp)
 	{
 		row = tmp->down;
@@ -39,14 +39,15 @@ void	clear_map(t_fdf *fdf)
 		}
 		tmp = row;
 	}
+	free(map);
 }
 
-void	terminate(t_fdf *fdf)
+void        terminate(t_fdf *fdf)
 {
-	clear_map(fdf);
+	clear_map(fdf->map);
+	clear_map(fdf->proj);
+	clear_map(fdf->transform);
 	fdf->map->dot = NULL;
-	free(fdf->map);
-	fdf->map = NULL;
 	mlx_destroy_image(fdf->window->mlx, fdf->window->img);
 	mlx_destroy_window(fdf->window->mlx, fdf->window->win);
 	free(fdf->window);
@@ -55,7 +56,7 @@ void	terminate(t_fdf *fdf)
 	exit(0);
 }
 
-int		close_w(void *param)
+int		        close_w(void *param)
 {
 	terminate(param);
 	(void)param;

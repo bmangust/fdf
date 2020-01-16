@@ -3,14 +3,12 @@
 ** the XFree86 distribution.
 */
 
-#ifndef MLX_RGB_H
-# define MLX_RGB_H
-
 struct  s_col_name
 {
 	char  *name;
 	int   color;
 };
+
 
 struct s_col_name mlx_col_name[] =
 {
@@ -769,5 +767,3 @@ struct s_col_name mlx_col_name[] =
  { "none", -1 },
  { 0, 0 }
 };
-
-#endif

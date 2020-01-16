@@ -8,6 +8,9 @@ SRC = 	main.c \
 		keys.c \
 		terminate.c \
 		transform.c \
+		projections.c \
+		matrixes.c
+
 
 NAME = fdf
 

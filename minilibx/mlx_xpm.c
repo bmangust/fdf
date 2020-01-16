@@ -9,8 +9,6 @@
 #include <fcntl.h>
 #include <string.h>
 #include	"mlx_int.h"
-//extern struct s_col_name mlx_col_name[];
-#include "mlx_rgb.h"
 
 typedef struct  s_xpm_col
 {
@@ -18,13 +16,9 @@ typedef struct  s_xpm_col
   int           col;
 } t_xpm_col;
 
-//
-//struct  s_col_name
-//{
-//  char  *name;
-//  int   color;
-//};
 
+//extern struct s_col_name mlx_col_name[];
+#include "mlx_rgb.h"
 
 
 #define	RETURN	{ if (colors) free(colors); if (tab) free(tab); \

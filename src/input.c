@@ -6,7 +6,7 @@
 /*   By: akraig <akraig@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/09 16:33:54 by akraig            #+#    #+#             */
-/*   Updated: 2019/11/24 16:31:03 by akraig           ###   ########.fr       */
+/*   Updated: 2020/01/16 15:27:21 by akraig           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,31 +82,60 @@ int		get_coordinates(char *file, t_map *map, char *line)
 	return (OK);
 }
 
-int			input(char *file, t_map *map)
+/*
+**	helper
+*/
+
+void    normalize_map(t_map *map)
+{
+    t_dot	*tmp;
+    int     i;
+
+    i = 0;
+    tmp = map->dot;
+    while (i < map->width * map->height)
+    {
+
+        tmp = tmp->next;
+        if (i != 0 && (i + 1) % map->width == 0)
+            tmp = tmp->down;
+        ++i;
+    }
+}
+
+/*
+**	helper
+*/
+
+void    print_map(t_map *map)
+{
+    t_dot	*tmp;
+
+    tmp = map->dot;
+    for (int i = 0; i < map->width * map->height; ++i)
+    {
+        printf("%3f", tmp->z);
+        tmp = tmp->next;
+        if (i != 0 && (i + 1) % map->width == 0)
+        {
+            tmp = tmp->down;
+            printf("\n");
+        }
+    }
+    printf("\n");
+}
+
+int		input(char *file, t_map *map)
 {
 	char	*line;
-	t_dot	*tmp;
 
 	line = NULL;
 	if (count_map_params(file, map, line) == ERROR ||
 		get_coordinates(file, map, line) == ERROR)
 	{
-		//clear t_dots
 		ft_strdel(&line);
-		free(map);
+		clear_map(map);
 		return (ERROR);
 	}
-	tmp = map->dot;
-	for (int i = 0; i < map->width * map->height; ++i)
-	{
-//		printf("%3f", tmp->z);
-		tmp = tmp->next;
-		if (i != 0 && (i + 1) % map->width == 0)
-		{
-			tmp = tmp->down;
-			printf("\n");
-		}
-	}
-//	printf("\n");
 	return (OK);
 }

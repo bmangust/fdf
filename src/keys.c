@@ -6,7 +6,7 @@
 /*   By: akraig <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/13 20:20:58 by akraig            #+#    #+#             */
-/*   Updated: 2019/12/13 21:08:39 by akraig           ###   ########.fr       */
+/*   Updated: 2020/01/16 21:38:00 by akraig           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,10 +22,6 @@ static void	move_select(int key, t_fdf *fdf)
 		update_figure(SHIFTNX, fdf, shift_figure);
 	else if (key == RIGHT)
 		update_figure(SHIFTX, fdf, shift_figure);
-	else if (key == NUM2)
-		update_figure(SHIFTNZ, fdf, shift_figure);
-	else if (key == NUM8)
-		update_figure(SHIFTZ, fdf, shift_figure);
 }
 
 static void	rotate_select(int key, t_fdf *fdf)
@@ -47,9 +43,29 @@ static void	rotate_select(int key, t_fdf *fdf)
 static void	scale_select(int key, t_fdf *fdf)
 {
 	if (key == PLUS || key == NUMPLUS)
-		update_figure(SHIFTZ, fdf, change_height);
+		update_figure(SCALEZ, fdf, change_height);
 	else if (key == MINUS || key == NUMMINUS)
-		update_figure(SHIFTNZ, fdf, change_height);
+		update_figure(SCALENZ, fdf, change_height);
+}
+
+void	change_distance(int key, t_fdf *fdf)
+{
+	if (key == W_KEY)
+		fdf->distance += 0.1;
+	else if (key == Q_KEY)
+		fdf->distance -= 0.1;
+	draw(fdf);
+}
+
+static void	projection_select(t_fdf *fdf)
+{
+	if (fdf->type_of_proj == TRUEISO)
+		fdf->type_of_proj = ISO21;
+	else if (fdf->type_of_proj == ISO21)
+		fdf->type_of_proj = PERSPECTIVE;
+	else if (fdf->type_of_proj == PERSPECTIVE)
+		fdf->type_of_proj = TRUEISO;
+	draw(fdf);
 }
 
 static int	key_press(int key, t_fdf *fdf)
@@ -62,8 +78,17 @@ static int	key_press(int key, t_fdf *fdf)
 		rotate_select(key, fdf);
 	else if (key == PLUS || key == MINUS || key == NUMPLUS || key == NUMMINUS)
 		scale_select(key, fdf);
+	else if (key == P_KEY)
+		projection_select(fdf);
+	else if ((key == W_KEY || key == Q_KEY) && fdf->type_of_proj == PERSPECTIVE)
+	{
+		change_distance(key, fdf);
+	}
+	else if (key == R_KEY)
+		update_figure(SCALENZ, fdf, reset_transform);
 	else if (key == ESC)
 		terminate(fdf);
+	printf("%d\n", key);
 	return (0);
 }
 
