@@ -6,7 +6,7 @@
 /*   By: akraig <akraig@student.21-school.ru>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/14 19:11:13 by akraig            #+#    #+#             */
-/*   Updated: 2020/01/16 20:38:22 by akraig           ###   ########.fr       */
+/*   Updated: 2020/01/17 20:11:18 by akraig           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,14 +97,25 @@ void	transform(double **matrix, t_map *map, t_map *dest_map)
 
 void		project_perspective(t_dot *src, t_dot *dest, double proj_angle, t_fdf *fdf)
 {
-	double	r;
+	double	z;
 	(void) src;
 	(void) proj_angle;
 
-//	z = 1 / (fdf->distance - fdf->transform->dot->z);
-	r = - 1 / fdf->distance;
-	dest->x = (int)round(src->x / (1 + dest->z * r) * fdf->xyscale * 3) + XBIAS;
-	dest->y = (int)round(src->y / (1 + dest->z * r) * fdf->xyscale * 3) + YBIAS;
+	z = 1 / (fdf->cam->distance - src->z);
+//	r = - 1 / fdf->cam->distance;
+//	dest->x = (int)round(src->x / (1 + dest->z * r) * fdf->xyscale * 3) + XBIAS;
+//	dest->y = (int)round(src->y / (1 + dest->z * r) * fdf->xyscale * 3) + YBIAS;
+
+	dest->x = (int)round(src->x * z * fdf->xyscale * 2) + XBIAS;
+	dest->y = (int)round(src->y * z * fdf->xyscale * 2) + YBIAS;
+}
+
+void	iso(t_dot *src, t_dot *dst, double proj_angle, t_fdf *fdf)
+{
+	dst->x = (int)round((src->x - src->y)
+						* cos(proj_angle) * fdf->xyscale) + XBIAS;
+	dst->y = (int)round(-src->z * fdf->zscale  + (src->x + src->y)
+						* sin(proj_angle) * fdf->xyscale) + YBIAS;
 }
 
 

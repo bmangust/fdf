@@ -6,7 +6,7 @@
 /*   By: akraig <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/20 20:33:24 by akraig            #+#    #+#             */
-/*   Updated: 2020/01/16 20:15:12 by akraig           ###   ########.fr       */
+/*   Updated: 2020/01/17 19:54:06 by akraig           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,59 +14,32 @@
 
 void	rotate(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf)
 {
-	(void) fdf;
-	double	i;
-	double	j;
+	double	i[2];
 
+	(void) src;
 	if (shift[0])
 	{
-		fdf->anglex = ROT_ANGLE * (shift[0] / STEP);
-		i = dst->y * cos(fdf->anglex) + dst->z * sin(fdf->anglex);
-		dst->z = dst->z * cos(fdf->anglex) - dst->y * sin(fdf->anglex);
-		dst->y = i;
+		fdf->cam->anglex = ROT_ANGLE * (shift[0] / STEP);
+		i[0] = dst->y * cos(fdf->cam->anglex) + dst->z * sin(fdf->cam->anglex);
+		dst->z = dst->z * cos(fdf->cam->anglex) - dst->y * sin(fdf->cam->anglex);
+		dst->y = i[0];
 	}
 	else if (shift[1])
 	{
-		fdf->angley = ROT_ANGLE * (shift[1] / STEP);
-		i = dst->x * cos(fdf->angley) + dst->z * sin(fdf->angley);
-		dst->z = dst->z * cos(fdf->angley) - dst->x * sin(fdf->angley);
-		dst->x = i;
+		fdf->cam->angley = ROT_ANGLE * (shift[1] / STEP);
+		i[0] = dst->x * cos(fdf->cam->angley) + dst->z * sin(fdf->cam->angley);
+		dst->z = dst->z * cos(fdf->cam->angley) - dst->x * sin(fdf->cam->angley);
+		dst->x = i[0];
 	}
 	else if (shift[2])
 	{
-		fdf->anglez = ROT_ANGLE * (shift[2] / STEP);
-		i = dst->x * cos(fdf->anglez) - dst->y * sin(fdf->anglez);
-		j = dst->y * cos(fdf->anglez) + dst->x * sin(fdf->anglez);
-		dst->x = i;
-		dst->y = j;
+		fdf->cam->anglez = ROT_ANGLE * (shift[2] / STEP);
+		i[0] = dst->x * cos(fdf->cam->anglez) - dst->y * sin(fdf->cam->anglez);
+		i[1] = dst->y * cos(fdf->cam->anglez) + dst->x * sin(fdf->cam->anglez);
+		dst->x = i[0];
+		dst->y = i[1];
 	}
 }
-
-//void	rotate(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf)
-//{
-//	(void)	fdf;
-//	int		i;
-//
-//	if (shift[0])
-//	{
-//		fdf->anglex += ROT_ANGLE * (shift[0] / STEP) / 20;
-//		i = src->y * cos(fdf->anglex) + src->z * sin(fdf->anglex);
-//		src->z = src->z * cos(fdf->anglex) - src->y * sin(fdf->anglex);
-//		src->y = i;
-//	}
-//	else if (shift[1])
-//	{
-//		fdf->angley += ROT_ANGLE * (shift[1] / STEP) / 20;
-//		dst->z = src->z * cos(fdf->angley) - src->x * sin(fdf->angley);
-//		dst->x = src->x * cos(fdf->angley) + src->z * sin(fdf->angley);
-//	}
-//	else if (shift[2])
-//	{
-//		fdf->anglez += ROT_ANGLE * (shift[2] / STEP) / 20;
-//		dst->x = src->x * cos(fdf->anglez) - src->y * sin(fdf->anglez);
-//		dst->y = src->y * cos(fdf->anglez) + src->x * sin(fdf->anglez);
-//	}
-//}
 
 void	shift_figure(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf)
 {
@@ -84,8 +57,6 @@ void	change_height(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf)
 	dst->z *= shift[2];
 }
 
-
-
 void	update_figure(float const *shift, t_fdf *fdf, void(*f)
 					(float const*, t_dot*, t_dot*, t_fdf*))
 {
@@ -99,13 +70,11 @@ void	update_figure(float const *shift, t_fdf *fdf, void(*f)
 	while (1)
 	{
 		f(shift, src, dst, fdf);
-//		printf("(%2.2f,%2.2f, %2.2f) ", src->x, src->y, src->z);
 		src = src->next;
 		dst = dst->next;
 		if (src->last && src->down)
 		{
 			f(shift, src, dst, fdf);
-//			printf("(%2.2f,%2.2f, %2.2f)\n", src->x, src->y, src->z);
 			src = src->next->down;
 			dst = dst->next->down;
 		}
@@ -114,7 +83,6 @@ void	update_figure(float const *shift, t_fdf *fdf, void(*f)
 	}
 	f(shift, src, dst, fdf);
 	draw(fdf);
-//	printf("(%2.2f,%2.2f, %2.2f)\n\n", src->x, src->y, src->z);
 }
 
 void	reset_transform(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf)

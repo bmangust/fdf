@@ -6,7 +6,7 @@
 /*   By: akraig <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/14 20:03:27 by akraig            #+#    #+#             */
-/*   Updated: 2020/01/12 13:05:08 by akraig           ###   ########.fr       */
+/*   Updated: 2020/01/17 20:29:53 by akraig           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ t_dot	*new_dot(int x, int y, int z)
 	new->y = y;
 	new->z = z;
 	new->last = 1;
+	new->color = CYAN;
 	new->up = new;
 	new->down = new;
 	new->next = new;
@@ -70,7 +71,7 @@ t_dot	*create_row(char *line, t_map *map, int y)
 	while (line[i[0]])
 	{
 		if (!(new = new_dot(i[1] - map->width / 2,
-				y - map->height / 2, ft_atoi(&line[i[0]]) / 2)))
+				y - map->height / 2, ft_atoi(&line[i[0]]) / 2 - 2)))
 		{
             clear_map(map);
 			return (NULL);
@@ -79,12 +80,10 @@ t_dot	*create_row(char *line, t_map *map, int y)
 			map->max_z = new->z;
 		if (map->min_z < new->z)
 			map->min_z = new->z;
-//		printf("(%2.2f,%2.2f, %2.2f) ", new->x, new->y, new->z);
 		add_last_dot(&row, new);
 		i[0] = find_next_number(line, i[0]);
 		i[1]++;
 	}
-//	printf("\n");
 	return (row);
 }
 

@@ -6,7 +6,7 @@
 /*   By: akraig <akraig@student.21-school.ru>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/22 20:43:18 by akraig            #+#    #+#             */
-/*   Updated: 2020/01/16 20:57:34 by akraig           ###   ########.fr       */
+/*   Updated: 2020/01/17 19:54:06 by akraig           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,6 @@
 # define MMB 3
 # define WHUP 4
 # define WHDN 5
-# define WHDN 5
 # define NUMPLUS 69
 # define NUMMINUS 78
 # define PLUS 24
@@ -81,19 +80,39 @@
 # define SHIFTNY (float[3]) {0, -STEP, 0}
 # define SHIFTZ (float[3]) {0, 0, STEP}
 # define SHIFTNZ (float[3]) {0, 0, -STEP}
-# define SCALEZ (float[3]) {0, 0, 1.3}
-# define SCALENZ (float[3]) {0, 0, 0.3}
+# define SCALEZ (float[3]) {0, 0, 1.5}
+# define SCALENZ (float[3]) {0, 0, 0.5}
 # define TRUEISO_ANGLE 0.523599
 # define ISO21_ANGLE 0.46373398
 # define ROT_ANGLE 0.0872664626	//5deg
+# define BITS_PER_PIXEL 32
+# define ENDIAN 0
 
-# define TRUEISO 1 << 0
-# define ISO21 1 << 1
-# define PERSPECTIVE 1 << 2
+# define TRUEISO 1
+# define ISO21 2
+# define PERSPECTIVE 3
 
 //# define EDOM
 //# define EILSEQ
 //# define ERANGE
+
+/*
+**	COLORS
+*/
+
+#define TEAL 0x008080
+#define SEAGREEN 0x2E8B57
+#define CYAN 0x20B2AA
+#define YELLOW 0xFFFF00
+#define GOLD 0xFFD700
+#define RED 0xE31717
+#define PURPLE 0x900C3F
+#define BLUE 0x0000CD
+#define WHITE 0xFFFFFF
+#define LIGHTGRAY 0xD3D3D3
+#define PURPLE 0x900C3F
+
+
 
 extern int			errno;
 
@@ -102,10 +121,12 @@ typedef struct		s_window
 	void			*mlx;
 	void			*win;
 	void			*img;
-	unsigned int	color;
 	int				width;
 	int				height;
 	int				clicked;
+	int				bits_per_pixel;
+	int				size_line;
+	int				endian;
 }					t_window;
 
 typedef struct		s_coord
@@ -120,6 +141,7 @@ typedef struct		s_dot
 	double			y;
 	double			z;
 	int				last;
+	unsigned int	color;
 	struct s_dot	*up;
 	struct s_dot	*down;
 	struct s_dot	*next;
@@ -131,7 +153,20 @@ typedef struct		s_cam
 	double			x;
 	double			y;
 	double			z;
+	double			anglex;
+	double			angley;
+	double			anglez;
+	double			distance;
 }					t_cam;
+
+typedef struct		s_mouse
+{
+	int				x;
+	int				y;
+	int				prev_x;
+	int				prev_y;
+	int 			is_pressed;
+}					t_mouse;
 
 typedef struct		s_map
 {
@@ -150,15 +185,10 @@ typedef struct		s_fdf
 	t_map			*map;
 	t_map			*transform;
 	t_map			*proj;
-	double			anglex;
-	double			angley;
-	double			anglez;
+	t_mouse			*mouse;
+	t_cam			*cam;
 	int				zscale;
 	int				xyscale;
-	int				bits_per_pixel;
-	int				size_line;
-	int				endian;
-	double			distance;
 	int				type_of_proj;
 }					t_fdf;
 
@@ -183,7 +213,7 @@ void		reset_transform(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf);
 int			click_line(int button, int x, int y, t_fdf *fdf);
 void		draw_line(t_dot dot1, t_dot dot2, t_fdf *fdf);
 int			draw(t_fdf *fdf);
-void 		clear_img(void *img, int width, int height, t_fdf *fdf);
+void 		clear_img(t_fdf *fdf);
 
 int			find_next_number(char *line, int i);
 int			get_coordinates(char *file, t_map *map, char *line);
@@ -202,6 +232,7 @@ double		**rotation_y(double angle);
 double		**rotation_z(double angle);
 void		delete_matrix(double **matrix);
 void		project_perspective(t_dot *src, t_dot *dest, double proj_angle, t_fdf *fdf);
+void		iso(t_dot *src, t_dot *dst, double proj_angle, t_fdf *fdf);
 
 double		**create_matrix();
 #endif
