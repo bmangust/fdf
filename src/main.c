@@ -27,7 +27,11 @@ int		main(int ac, char **av)
 	img = mlx_new_image(mlx, IMAGE_WIDTH, IMAGE_HEIGHT);
 	window = new_window(mlx, win, img, IMAGE_WIDTH, IMAGE_HEIGHT);
 	map = new_map();
-	input(av[1], map);
+	if (input(av[1], map) == ERROR)
+	{
+		mlx_destroy_image(mlx, img);
+		return (0);
+	}
 	fdf = new_fdf(window, map);
 	if (!fdf)
 		terminate(fdf);

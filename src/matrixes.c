@@ -85,3 +85,85 @@ double				**rotation_z(double angle)
 	matrix[2][2] = 1;
 	return (matrix);
 }
+
+t_dot	*copy_row(t_dot *row, t_map *map, t_map *proj)
+{
+	int		i;
+	t_dot	*proj_row;
+	t_dot	*new;
+
+	i = 0;
+	proj_row = NULL;
+	while (i < map->width)
+	{
+		if (!(new = new_dot(row->x, row->y, row->z)))
+		{
+			clear_map(proj);
+			return (NULL);
+		}
+		add_last_dot(&proj_row, new);
+		row = row->next;
+		i++;
+	}
+	return (proj_row);
+}
+
+void	copy_map(t_map *map, t_map *dest)
+{
+	t_dot	*tmp;
+	int 	i[2];
+
+	tmp = map->dot;
+	i[0] = 0;
+	while (i[0] < map->height)
+	{
+		attach_row(&(dest->dot), copy_row(tmp, map, dest));
+		tmp = tmp->down;
+		i[0]++;
+	}
+	dest->width = map->width;
+	dest->height = map->height;
+	dest->min_z = map->min_z;
+	dest->max_z = map->max_z;
+}
+
+void	matmul(double **matrix, t_dot *src, t_dot *dst)
+{
+	dst->x =
+			src->x * matrix[0][0] + src->y * matrix[0][1] + src->z * matrix[0][2];
+	dst->y =
+			src->x * matrix[1][0] + src->y * matrix[1][1] + src->z * matrix[1][2];
+	dst->z =
+			src->x * matrix[2][0] + src->y * matrix[2][1] + src->z * matrix[2][2];
+}
+
+void	project_row(t_dot *row, t_map *map, double **m, t_dot *dst)
+{
+	int		i;
+
+	i = 0;
+	while (i < map->width)
+	{
+		matmul(m, row, dst);
+		dst = dst->next;
+		row = row->next;
+		i++;
+	}
+}
+void	transform(double **matrix, t_map *map, t_map *dest_map)
+{
+	t_dot	*src;
+	t_dot	*dst;
+	int 	i;
+
+	src = map->dot;
+	dst = dest_map->dot;
+	i = 0;
+	while (i < map->height)
+	{
+		project_row(src, map, matrix, dst);
+		src = src->down;
+		dst = dst->down;
+		i++;
+	}
+}

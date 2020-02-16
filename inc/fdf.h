@@ -18,6 +18,7 @@
 # include <unistd.h>
 # include <stdlib.h>
 # include <math.h>
+# include <float.h>
 # include <sys/types.h>
 # include <sys/stat.h>
 # include <fcntl.h>
@@ -80,11 +81,11 @@
 # define SHIFTNY (float[3]) {0, -STEP, 0}
 # define SHIFTZ (float[3]) {0, 0, STEP}
 # define SHIFTNZ (float[3]) {0, 0, -STEP}
-# define SCALEZ (float[3]) {0, 0, 1.5}
-# define SCALENZ (float[3]) {0, 0, 0.5}
+# define SCALEZ (float[3]) {0, 0, 1.2}
+# define SCALENZ (float[3]) {0, 0, 0.8}
 # define TRUEISO_ANGLE 0.523599
 # define ISO21_ANGLE 0.46373398
-# define ROT_ANGLE 0.0872664626	//5deg
+# define ROT_ANGLE 0.0872664626
 # define BITS_PER_PIXEL 32
 # define ENDIAN 0
 
@@ -92,27 +93,28 @@
 # define ISO21 2
 # define PERSPECTIVE 3
 
-//# define EDOM
-//# define EILSEQ
-//# define ERANGE
-
 /*
 **	COLORS
 */
 
-#define TEAL 0x008080
-#define SEAGREEN 0x2E8B57
-#define CYAN 0x20B2AA
-#define YELLOW 0xFFFF00
-#define GOLD 0xFFD700
-#define RED 0xE31717
-#define PURPLE 0x900C3F
-#define BLUE 0x0000CD
-#define WHITE 0xFFFFFF
-#define LIGHTGRAY 0xD3D3D3
-#define PURPLE 0x900C3F
+# define TEAL 0x008080
+# define SEAGREEN 0x2E8B57
+# define CYAN 0x20B2AA
+# define YELLOW 0xFFFF00
+# define GOLD 0xFFD700
+# define RED 0xE31717
+# define PURPLE 0x900C3F
+# define LIGHTBLUE 0x3B33C3
+# define BLUE 0x2A248B
+# define WHITE 0xFFFFFF
+# define BLACK 0x101010
+# define LIGHTGRAY 0xD3D3D3
 
-
+# define TEALORANGE 0
+# define BLACKWHITE 1
+# define PURPLEGOLD 2
+# define SHADESBLUE 3
+# define SINGLECOLOR 4
 
 extern int			errno;
 
@@ -141,6 +143,7 @@ typedef struct		s_dot
 	double			y;
 	double			z;
 	int				last;
+	int				show;
 	unsigned int	color;
 	struct s_dot	*up;
 	struct s_dot	*down;
@@ -189,50 +192,55 @@ typedef struct		s_fdf
 	t_cam			*cam;
 	int				zscale;
 	int				xyscale;
+	int				colorsceme;
+	int				color;
 	int				type_of_proj;
 }					t_fdf;
 
-int			input(char *file, t_map *map);
-t_map		*new_map(void);
-t_window	*new_window(void *mlx, void *win, void *img, int width, int height);
-t_fdf		*new_fdf(t_window *window, t_map *map);
-t_coord		*new_coord(int x, int y);
-t_dot		*new_dot(int x, int y, int z);
-t_dot		*add_last_dot(t_dot **head, t_dot *new);
-t_dot		*create_row(char *line, t_map *map, int y);
-void		attach_row(t_dot **header, t_dot *row);
+int					input(char *file, t_map *map);
+t_map				*new_map(void);
+t_window			*new_window(void *mlx, void *win, void *img, int width, int height);
+t_fdf				*new_fdf(t_window *window, t_map *map);
+t_coord				*new_coord(int x, int y);
+t_dot				*new_dot(int x, int y, int z);
+t_dot				*add_last_dot(t_dot **head, t_dot *new);
+t_dot				*create_row(char *line, t_map *map, int y);
+void				attach_row(t_dot **header, t_dot *row);
 
-void 		key_hooks(t_fdf *fdf);
-void		update_figure(float const *shift, t_fdf *fdf,
-			void(*f)(float const *shift, t_dot *dot, t_dot*, t_fdf *fdf));
-void		rotate(float const *shift, t_dot *dst, t_dot *src, t_fdf *fdf);
-void		shift_figure(float const *shift, t_dot *dot, t_dot *dst, t_fdf *fdf);
-void		change_height(float const *shift, t_dot *dot, t_dot *dst, t_fdf *fdf);
-void		reset_transform(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf);
+void 				key_hooks(t_fdf *fdf);
+void				update_figure(float const *shift, t_fdf *fdf,
+					void(*f)(float const *shift, t_dot *dot, t_dot*, t_fdf *fdf));
+void				rotate(float const *shift, t_dot *dst, t_dot *src, t_fdf *fdf);
+void				shift_figure(float const *shift, t_dot *dot, t_dot *dst, t_fdf *fdf);
+void				change_scale(float const *shift, t_dot *dot, t_dot *dst, t_fdf *fdf);
+void				reset_transform(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf);
+void				change_color(uint32_t top_col, uint32_t bottom_col, t_fdf *fdf);
 
-int			click_line(int button, int x, int y, t_fdf *fdf);
-void		draw_line(t_dot dot1, t_dot dot2, t_fdf *fdf);
-int			draw(t_fdf *fdf);
-void 		clear_img(t_fdf *fdf);
+int					click_line(int button, int x, int y, t_fdf *fdf);
+void				draw_line(t_dot dot1, t_dot dot2, t_fdf *fdf);
+int					draw(t_fdf *fdf);
+void 				clear_img(t_fdf *fdf);
 
-int			find_next_number(char *line, int i);
-int			get_coordinates(char *file, t_map *map, char *line);
+int					find_next_number(char *line, int i);
+int					get_coordinates(char *file, t_map *map, char *line);
 
-void		initialize_coord(t_coord *new, int x, int y, int color);
-void        clear_map(t_map *map);
-void		terminate(t_fdf *fdf);
-int			close_w(void *param);
+void				initialize_coord(t_coord *new, int x, int y, int color);
+void        		clear_map(t_map *map);
+void				terminate(t_fdf *fdf);
+int					close_w(void *param);
 
-//int		*matmul(int **a, int *b);
-void		copy_map(t_map *map, t_map *dest);
-void		matmul(double **matrix, t_dot *src, t_dot *dst);
-void		transform(double **matrix, t_map *map, t_map *dest_map);
-double		**rotation_x(double angle);
-double		**rotation_y(double angle);
-double		**rotation_z(double angle);
-void		delete_matrix(double **matrix);
-void		project_perspective(t_dot *src, t_dot *dest, double proj_angle, t_fdf *fdf);
-void		iso(t_dot *src, t_dot *dst, double proj_angle, t_fdf *fdf);
+//int				*matmul(int **a, int *b);
+void				copy_map(t_map *map, t_map *dest);
+void				matmul(double **matrix, t_dot *src, t_dot *dst);
+void				transform(double **matrix, t_map *map, t_map *dest_map);
+double				**rotation_x(double angle);
+double				**rotation_y(double angle);
+double				**rotation_z(double angle);
+void				delete_matrix(double **matrix);
+void				project_perspective(t_dot *src, t_dot *dest, double proj_angle, t_fdf *fdf);
+void				iso(t_dot *src, t_dot *dst, double proj_angle, t_fdf *fdf);
+int					is_inside(t_dot dot);
+void				project(t_fdf *fdf, double proj_a, void(f)(t_dot*, t_dot*, double, t_fdf*));
 
-double		**create_matrix();
+double				**create_matrix();
 #endif

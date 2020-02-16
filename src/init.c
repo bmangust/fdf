@@ -50,7 +50,7 @@ t_cam		*new_camera(void)
 	new->x = 0;
 	new->y = 0;
 	new->z = 0;
-	new->distance = 2;
+	new->distance = 2.2;
 	new->anglex = 0;
 	new->angley = 0;
 	new->anglez = 0;
@@ -98,7 +98,9 @@ t_fdf	*new_fdf(t_window *window, t_map *map)
 	new->coord = new_coord(0, 0);
 	new->zscale = 1;
 	new->xyscale = 40;
-	new->type_of_proj = ISO21;
+	new->colorsceme = TEALORANGE;
+	new->color = TEAL;
+	new->type_of_proj = PERSPECTIVE;
 	return (new);
 }
 

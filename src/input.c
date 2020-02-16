@@ -82,6 +82,21 @@ int		get_coordinates(char *file, t_map *map, char *line)
 	return (OK);
 }
 
+int		input(char *file, t_map *map)
+{
+	char	*line;
+
+	line = NULL;
+	if (count_map_params(file, map, line) == ERROR ||
+		get_coordinates(file, map, line) == ERROR)
+	{
+		ft_strdel(&line);
+		clear_map(map);
+		return (ERROR);
+	}
+	return (OK);
+}
+
 /*
 **	helper
 */
@@ -103,10 +118,6 @@ void    normalize_map(t_map *map)
     }
 }
 
-/*
-**	helper
-*/
-
 void    print_map(t_map *map)
 {
     t_dot	*tmp;
@@ -123,19 +134,4 @@ void    print_map(t_map *map)
         }
     }
     printf("\n");
-}
-
-int		input(char *file, t_map *map)
-{
-	char	*line;
-
-	line = NULL;
-	if (count_map_params(file, map, line) == ERROR ||
-		get_coordinates(file, map, line) == ERROR)
-	{
-		ft_strdel(&line);
-		clear_map(map);
-		return (ERROR);
-	}
-	return (OK);
 }

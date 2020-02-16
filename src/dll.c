@@ -21,8 +21,9 @@ t_dot	*new_dot(int x, int y, int z)
 	new->x = x;
 	new->y = y;
 	new->z = z;
+	new->show = 1;
 	new->last = 1;
-	new->color = CYAN;
+	new->color = new->z == 0 ? SEAGREEN : CYAN;
 	new->up = new;
 	new->down = new;
 	new->next = new;
@@ -71,14 +72,14 @@ t_dot	*create_row(char *line, t_map *map, int y)
 	while (line[i[0]])
 	{
 		if (!(new = new_dot(i[1] - map->width / 2,
-				y - map->height / 2, ft_atoi(&line[i[0]]) / 2 - 2)))
+				y - map->height / 2, ft_atoi(&line[i[0]]))))
 		{
             clear_map(map);
 			return (NULL);
 		}
 		if (map->max_z < new->z)
 			map->max_z = new->z;
-		if (map->min_z < new->z)
+		if (map->min_z > new->z)
 			map->min_z = new->z;
 		add_last_dot(&row, new);
 		i[0] = find_next_number(line, i[0]);

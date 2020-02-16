@@ -25,12 +25,9 @@ void    clear_map(t_map *map)
 		while (tmp)
 		{
 			next = tmp->next;
-			if (tmp->down)
-				tmp->down->up = NULL;
-			if (tmp->prev)
-				tmp->prev->next = NULL;
-			if (tmp->next)
-				tmp->next->prev = NULL;
+			tmp->down ? tmp->down->up = NULL : 0;
+			tmp->prev ? tmp->prev->next = NULL : 0;
+			tmp->next ? tmp->next->prev = NULL : 0;
 			tmp->prev = NULL;
 			tmp->next = NULL;
 			tmp->down = NULL;
@@ -44,10 +41,13 @@ void    clear_map(t_map *map)
 
 void        terminate(t_fdf *fdf)
 {
-	clear_map(fdf->map);
-	clear_map(fdf->proj);
-	clear_map(fdf->transform);
-	fdf->map->dot = NULL;
+	if (fdf)
+	{
+		clear_map(fdf->map);
+		clear_map(fdf->proj);
+		clear_map(fdf->transform);
+		fdf->map->dot = NULL;
+	}
 	mlx_destroy_image(fdf->window->mlx, fdf->window->img);
 	mlx_destroy_window(fdf->window->mlx, fdf->window->win);
 	free(fdf->window);

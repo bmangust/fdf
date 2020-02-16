@@ -43,10 +43,9 @@ static void	rotate_select(int key, t_fdf *fdf)
 static void	scale_select(int key, t_fdf *fdf)
 {
 	if (key == PLUS || key == NUMPLUS)
-		update_figure(SCALEZ, fdf, change_height);
+		update_figure(SCALEZ, fdf, change_scale);
 	else if (key == MINUS || key == NUMMINUS)
-		update_figure(SCALENZ, fdf, change_height);
-	draw(fdf);
+		update_figure(SCALENZ, fdf, change_scale);
 }
 
 void	change_distance(int key, t_fdf *fdf)
@@ -55,10 +54,10 @@ void	change_distance(int key, t_fdf *fdf)
 		fdf->cam->distance += 0.1;
 	else if (key == Q_KEY)
 		fdf->cam->distance -= 0.1;
-//	if (fdf->cam->distance < 1.4)
-//		fdf->cam->distance = 1.4;
-//	else if (fdf->cam->distance > 5)
-//		fdf->cam->distance = 5;
+	if (fdf->cam->distance < 1.1)
+		fdf->cam->distance = 1.1;
+	else if (fdf->cam->distance > 10)
+		fdf->cam->distance = 10;
 	draw(fdf);
 }
 
@@ -70,6 +69,23 @@ static void	projection_select(t_fdf *fdf)
 		fdf->type_of_proj = PERSPECTIVE;
 	else if (fdf->type_of_proj == PERSPECTIVE)
 		fdf->type_of_proj = TRUEISO;
+	draw(fdf);
+}
+
+static void color_select(t_fdf *fdf, int key)
+{
+	if (key == NUM0)
+		fdf->colorsceme = (fdf->colorsceme + 1) % 5;
+	if (fdf->colorsceme == TEALORANGE)
+		change_color(GOLD, TEAL, fdf);
+	else if (fdf->colorsceme == BLACKWHITE)
+		change_color(WHITE, BLACK, fdf);
+	else if (fdf->colorsceme == PURPLEGOLD)
+		change_color(GOLD, PURPLE, fdf);
+	else if (fdf->colorsceme == SHADESBLUE)
+		change_color(LIGHTBLUE, BLUE, fdf);
+	else if (fdf->colorsceme == SINGLECOLOR)
+		change_color(fdf->color, fdf->color, fdf);
 	draw(fdf);
 }
 
@@ -85,6 +101,8 @@ static int	key_press(int key, t_fdf *fdf)
 		scale_select(key, fdf);
 	else if (key == P_KEY)
 		projection_select(fdf);
+	else if (key == NUM0 || key == NUM5)
+		color_select(fdf, key);
 	else if ((key == W_KEY || key == Q_KEY) && fdf->type_of_proj == PERSPECTIVE)
 		change_distance(key, fdf);
 	else if (key == R_KEY)
@@ -141,9 +159,8 @@ int	mouse_release(int key, int x, int y, t_fdf *fdf)
 void 		key_hooks(t_fdf *fdf)
 {
 	mlx_hook(fdf->window->win, 2, 0, key_press, fdf);
-	//mlx_hook(fdf->window->win, 3, 0, key_release, fdf);
-	mlx_hook(fdf->window->win, 4, 0, mouse_press, fdf);
-	mlx_hook(fdf->window->win, 5, 0, mouse_release, fdf);
-	mlx_hook(fdf->window->win, 6, 0, mouse_move, fdf);
+//	mlx_hook(fdf->window->win, 4, 0, mouse_press, fdf);
+//	mlx_hook(fdf->window->win, 5, 0, mouse_release, fdf);
+//	mlx_hook(fdf->window->win, 6, 0, mouse_move, fdf);
 	mlx_hook(fdf->window->win, CLOSE, 0, close_w, fdf);
 }

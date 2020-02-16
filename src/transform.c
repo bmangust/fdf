@@ -50,15 +50,44 @@ void	shift_figure(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf)
 	dst->z += shift[2] * 5;
 }
 
-void	change_height(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf)
+void	change_scale(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf)
 {
 	(void) fdf;
 	(void) src;
+	dst->x *= shift[2];
+	dst->y *= shift[2];
 	dst->z *= shift[2];
 }
 
+void	change_color(uint32_t top_col, uint32_t bottom_col, t_fdf *fdf)
+{
+	t_dot *src;
+	t_dot *dst;
+
+	if (!fdf)
+		return ;
+	src = fdf->map->dot;
+	dst = fdf->proj->dot;
+	while (1)
+	{
+		dst->color = src->z == 0 ? bottom_col : top_col;
+		src = src->next;
+		dst = dst->next;
+		if (src->last && src->down)
+		{
+			dst->color = src->z == 0 ? bottom_col : top_col;
+			src = src->next->down;
+			dst = dst->next->down;
+		}
+		if (!(src->down) && src->last)
+			break ;
+	}
+	dst->color = src->z == 0 ? bottom_col : top_col;
+	draw(fdf);
+}
+
 void	update_figure(float const *shift, t_fdf *fdf, void(*f)
-					(float const*, t_dot*, t_dot*, t_fdf*))
+		(float const*, t_dot*, t_dot*, t_fdf*))
 {
 	t_dot *src;
 	t_dot *dst;

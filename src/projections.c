@@ -12,148 +12,68 @@
 
 #include "fdf.h"
 
-t_dot	*copy_row(t_dot *row, t_map *map, t_map *proj)
+int			is_inside(t_dot dot)
 {
-	int		i;
-	t_dot	*proj_row;
-	t_dot	*new;
-
-	i = 0;
-	proj_row = NULL;
-	while (i < map->width)
-	{
-		if (!(new = new_dot(row->x, row->y, row->z)))
-		{
-			clear_map(proj);
-			return (NULL);
-		}
-		add_last_dot(&proj_row, new);
-		row = row->next;
-		i++;
-	}
-	return (proj_row);
+	if ((dot.x > 0) && (dot.x < IMAGE_WIDTH) &&
+		(dot.y > 0) && (dot.y < IMAGE_HEIGHT))
+		return (1);
+	return (0);
 }
 
-void	copy_map(t_map *map, t_map *dest)
-{
-	t_dot	*tmp;
-	int 	i[2];
-
-	tmp = map->dot;
-	i[0] = 0;
-	while (i[0] < map->height)
-	{
-		attach_row(&(dest->dot),
-				   copy_row(tmp, map, dest));
-		tmp = tmp->down;
-		i[0]++;
-	}
-	dest->width = map->width;
-	dest->height = map->height;
-	dest->min_z = map->min_z;
-	dest->max_z = map->max_z;
-}
-
-void	matmul(double **matrix, t_dot *src, t_dot *dst)
-{
-	dst->x =
-	src->x * matrix[0][0] + src->y * matrix[0][1] + src->z * matrix[0][2];
-	dst->y =
-	src->x * matrix[1][0] + src->y * matrix[1][1] + src->z * matrix[1][2];
-	dst->z =
-	src->x * matrix[2][0] + src->y * matrix[2][1] + src->z * matrix[2][2];
-}
-
-void	project_row(t_dot *row, t_map *map, double **m, t_dot *dst)
-{
-	int		i;
-
-	i = 0;
-	while (i < map->width)
-	{
-		matmul(m, row, dst);
-		dst = dst->next;
-		row = row->next;
-		i++;
-	}
-}
-void	transform(double **matrix, t_map *map, t_map *dest_map)
-{
-	t_dot	*src;
-	t_dot	*dst;
-	int 	i;
-
-	src = map->dot;
-	dst = dest_map->dot;
-	i = 0;
-	while (i < map->height)
-	{
-		project_row(src, map, matrix, dst);
-		src = src->down;
-		dst = dst->down;
-		i++;
-	}
-}
-
-void		project_perspective(t_dot *src, t_dot *dest, double proj_angle, t_fdf *fdf)
+void		project_perspective(t_dot *src, t_dot *dest, double proj_angle,
+																t_fdf *fdf)
 {
 	double	z;
 	(void) src;
 	(void) proj_angle;
 
-	z = 1 / (fdf->cam->distance - src->z);
-//	r = - 1 / fdf->cam->distance;
-//	dest->x = (int)round(src->x / (1 + dest->z * r) * fdf->xyscale * 3) + XBIAS;
-//	dest->y = (int)round(src->y / (1 + dest->z * r) * fdf->xyscale * 3) + YBIAS;
-
-	dest->x = (int)round(src->x * z * fdf->xyscale * 2) + XBIAS;
-	dest->y = (int)round(src->y * z * fdf->xyscale * 2) + YBIAS;
+	if (src->z <= fdf->cam->distance)
+	{
+		dest->show = 1;
+		z = 4 / (fdf->cam->distance - src->z);
+		if (fdf->cam->distance - src->z == INFINITY ||
+			fdf->cam->distance - src->z == -INFINITY)
+			z = DBL_MIN;
+		dest->x = (int)(src->x * z * fdf->xyscale) + XBIAS;
+		dest->y = (int)(src->y * z * fdf->xyscale) + YBIAS;
+	}
+	else
+		dest->show = 0;
 }
 
 void	iso(t_dot *src, t_dot *dst, double proj_angle, t_fdf *fdf)
 {
-	dst->x = (int)round((src->x - src->y)
-						* cos(proj_angle) * fdf->xyscale) + XBIAS;
-	dst->y = (int)round(-src->z * fdf->zscale  + (src->x + src->y)
-						* sin(proj_angle) * fdf->xyscale) + YBIAS;
+	dst->show = 1;
+	dst->x = (int)((src->x - src->y) * cos(proj_angle) * fdf->xyscale) + XBIAS;
+	dst->y = (int)(-src->z * fdf->zscale  + (src->x + src->y)
+						 * sin(proj_angle) * fdf->xyscale) + YBIAS;
 }
 
-
-//
-//void	iso(t_dot *src, t_dot *dest, double proj_angle, t_fdf *fdf)
-//{
-//	dest->x = (int)round((src->x - src->y)
-//						 * cos(proj_angle) * fdf->xyscale) + XBIAS;
-//	dest->y = (int)round(-src->z * fdf->zscale  + (src->x + src->y)
-//												  * sin(proj_angle) * fdf->xyscale) + YBIAS;
-//}
-//
-//int		project(t_fdf *fdf, double proj_angle)
-//{
-//	t_dot *src;
-//	t_dot *dst;
-//
-//	src = fdf->map->dot;
-//	dst = fdf->proj->dot;
-//	while (src)
-//	{
-//		iso(src, dst, proj_angle, fdf);
-//		if (src->down)
-//		{
-//			iso(src, dst, proj_angle, fdf);
-//			iso(src->down, dst->down, proj_angle, fdf);
-//			draw_line(*dst, *dst->down, fdf);
-//		}
-//		if (!(src->last))
-//		{
-//			iso(src, dst, proj_angle, fdf);
-//			iso(src->next, dst->next, proj_angle, fdf);
-//			draw_line(*dst, *dst->next, fdf);
-//			src = src->next;
-//			dst = dst->next;
-//			continue ;
-//		}
-//		src = src->next->down;
-//	}
-//	return (OK);
-//}
+void		project(t_fdf *fdf, double proj_a, void(f)(t_dot*, t_dot*, double, t_fdf*))
+{
+	t_dot *src;
+	t_dot *dst;
+	src = fdf->transform->dot;
+	dst = fdf->proj->dot;
+	while (src)
+	{
+		f(src, dst, proj_a, fdf);
+		if (src->down)
+		{
+			f(src->down, dst->down, proj_a, fdf);
+			if ((is_inside(*dst) || is_inside(*dst->down)) && dst->show)
+				draw_line(*dst, *dst->down, fdf);
+		}
+		if (!(src->last))
+		{
+			f(src->next, dst->next, proj_a, fdf);
+			if ((is_inside(*dst) || is_inside(*dst->next)) && dst->show)
+				draw_line(*dst, *dst->next, fdf);
+			src = src->next;
+			dst = dst->next;
+			continue ;
+		}
+		src = src->next->down;
+		dst = dst->next->down;
+	}
+}

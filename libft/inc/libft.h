@@ -23,6 +23,8 @@ typedef struct		s_list
 	size_t			content_size;
 	struct s_list	*next;
 }					t_list;
+int64_t				ft_absint(int64_t n);
+float				ft_absfloat(float n);
 void				*ft_memset(void *dst, int c, size_t n);
 void				ft_bzero(void *s, size_t n);
 void				*ft_memcpy(void *dst, const void *src, size_t count);

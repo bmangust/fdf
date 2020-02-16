@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(06_fdf C)
+project(fdf C)
 
 set(CMAKE_C_STANDARD 11)
 
@@ -7,7 +7,7 @@ include_directories(inc)
 include_directories(libft/inc)
 include_directories(minilibx)
 
-add_executable(06_fdf
+add_executable(fdf
         inc/fdf.h
         libft/inc/get_next_line.h
         libft/inc/libft.h
@@ -76,6 +76,7 @@ add_executable(06_fdf
         libft/src/ft_wordlen.c
         libft/src/ft_wrdcnt.c
         libft/src/get_next_line.c
+        libft/src/ft_abs.c
         minilibx/font.c
         minilibx/mlx.h
         minilibx/mlx_init_loop.m
@@ -93,14 +94,10 @@ add_executable(06_fdf
         src/input.c
         src/keys.c
         src/main.c
-        src/projections.c
-        src/terminate.c
-        src/transform.c
         src/matrixes.c
         src/projections.c
+        src/terminate.c
+        src/transform.c libft/src/ft_abs.c)
 
-        )
-
-target_link_libraries(06_fdf "-framework AppKit")
-target_link_libraries(06_fdf "-framework OpenGL")
-
+target_link_libraries(fdf "-framework AppKit")
+target_link_libraries(fdf "-framework OpenGL")
