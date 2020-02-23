@@ -79,6 +79,10 @@ int		get_coordinates(char *file, t_map *map, char *line)
 	if (i[1] == -1)
 		return (ERROR);
 	close(i[0]);
+	map->max = new_dot(0,0,map->max_z);
+	map->max->color = TEAL;
+	map->min = new_dot(0,0,map->min_z);
+	map->min->color = TEAL;
 	return (OK);
 }
 

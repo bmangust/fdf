@@ -23,7 +23,7 @@ t_dot	*new_dot(int x, int y, int z)
 	new->z = z;
 	new->show = 1;
 	new->last = 1;
-	new->color = new->z == 0 ? SEAGREEN : CYAN;
+	new->color = new->z == 0 ? BLACK : WHITE;
 	new->up = new;
 	new->down = new;
 	new->next = new;

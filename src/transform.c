@@ -59,6 +59,20 @@ void	change_scale(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf)
 	dst->z *= shift[2];
 }
 
+uint32_t	get_color(t_dot current, t_dot min, t_dot max)
+{
+	int		red;
+	int		green;
+	int		blue;
+	double  percentage;
+
+	percentage = percent(min.z, max.z, current.z);
+	red = get_light((min.color >> 16) & 0xFF, (max.color >> 16) & 0xFF, percentage);
+	green = get_light((min.color >> 8) & 0xFF, (max.color >> 8) & 0xFF, percentage);
+	blue = get_light(min.color & 0xFF, max.color & 0xFF, percentage);
+	return ((red << 16) | (green << 8) | blue);
+}
+
 void	change_color(uint32_t top_col, uint32_t bottom_col, t_fdf *fdf)
 {
 	t_dot *src;

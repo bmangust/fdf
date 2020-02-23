@@ -110,8 +110,8 @@
 # define BLACK 0x101010
 # define LIGHTGRAY 0xD3D3D3
 
-# define TEALORANGE 0
-# define BLACKWHITE 1
+# define BLACKWHITE 0
+# define TEALORANGE 1
 # define PURPLEGOLD 2
 # define SHADESBLUE 3
 # define SINGLECOLOR 4
@@ -177,6 +177,8 @@ typedef struct		s_map
 	int				height;
 	double			min_z;
 	double			max_z;
+	t_dot 			*max;
+	t_dot 			*min;
 	int 			**coords;
 	t_dot			*dot;
 }					t_map;
@@ -241,6 +243,8 @@ void				project_perspective(t_dot *src, t_dot *dest, double proj_angle, t_fdf *f
 void				iso(t_dot *src, t_dot *dst, double proj_angle, t_fdf *fdf);
 int					is_inside(t_dot dot);
 void				project(t_fdf *fdf, double proj_a, void(f)(t_dot*, t_dot*, double, t_fdf*));
+int					get_light(double start, double end, double percentage);
+double				percent(double start, double end, double current);
 
 double				**create_matrix();
 #endif
