@@ -15,6 +15,7 @@
 t_dot	*new_dot(int x, int y, int z)
 {
 	t_dot *new;
+
 	new = (t_dot*)malloc(sizeof(t_dot));
 	if (!new)
 		return (NULL);
@@ -60,9 +61,9 @@ t_dot	*add_last_dot(t_dot **head, t_dot *new)
 
 t_dot	*create_row(char *line, t_map *map, int y)
 {
-	int i[2];
-	t_dot *new;
-	t_dot *row;
+	int		i[2];
+	t_dot	*new;
+	t_dot	*row;
 
 	i[0] = 0;
 	i[1] = 0;
@@ -73,14 +74,11 @@ t_dot	*create_row(char *line, t_map *map, int y)
 	{
 		if (!(new = new_dot(i[1] - map->width / 2,
 				y - map->height / 2, ft_atoi(&line[i[0]]))))
-		{
-            clear_map(map);
 			return (NULL);
-		}
-		if (map->max_z < new->z)
-			map->max_z = new->z;
-		if (map->min_z > new->z)
-			map->min_z = new->z;
+		if (!map->max || (map->max && map->max->z < new->z))
+			map->max = new;
+		if (!map->min || (map->min && map->min->z > new->z))
+			map->min = new;
 		add_last_dot(&row, new);
 		i[0] = find_next_number(line, i[0]);
 		i[1]++;
@@ -88,17 +86,17 @@ t_dot	*create_row(char *line, t_map *map, int y)
 	return (row);
 }
 
-void	attach_row(t_dot **header, t_dot *row)
+t_dot	*attach_row(t_dot **header, t_dot *row)
 {
 	t_dot	*temp_header;
 	t_dot	*temp;
 
 	if (!row || !header)
-		return ;
+		return (NULL);
 	if (!(*header))
 	{
 		*header = row;
-		return ;
+		return (*header);
 	}
 	temp_header = *header;
 	temp = row;
@@ -113,5 +111,5 @@ void	attach_row(t_dot **header, t_dot *row)
 		if (temp == row)
 			break ;
 	}
+	return (*header);
 }
-

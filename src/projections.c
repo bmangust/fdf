@@ -20,13 +20,12 @@ int			is_inside(t_dot dot)
 	return (0);
 }
 
-void		project_perspective(t_dot *src, t_dot *dest, double proj_angle,
-																t_fdf *fdf)
+void		project_perspective(t_dot *src, t_dot *dest,
+								double proj_angle, t_fdf *fdf)
 {
 	double	z;
-	(void) src;
-	(void) proj_angle;
 
+	(void)proj_angle;
 	if (src->z <= fdf->cam->distance)
 	{
 		dest->show = 1;
@@ -41,18 +40,20 @@ void		project_perspective(t_dot *src, t_dot *dest, double proj_angle,
 		dest->show = 0;
 }
 
-void	iso(t_dot *src, t_dot *dst, double proj_angle, t_fdf *fdf)
+void		iso(t_dot *src, t_dot *dst, double proj_angle, t_fdf *fdf)
 {
 	dst->show = 1;
 	dst->x = (int)((src->x - src->y) * cos(proj_angle) * fdf->xyscale) + XBIAS;
-	dst->y = (int)(-src->z * fdf->zscale  + (src->x + src->y)
-						 * sin(proj_angle) * fdf->xyscale) + YBIAS;
+	dst->y = (int)(-src->z * fdf->zscale + (src->x + src->y)
+							* sin(proj_angle) * fdf->xyscale) + YBIAS;
 }
 
-void		project(t_fdf *fdf, double proj_a, void(f)(t_dot*, t_dot*, double, t_fdf*))
+void		project(t_fdf *fdf, double proj_a,
+				void (f)(t_dot*, t_dot*, double, t_fdf*))
 {
 	t_dot *src;
 	t_dot *dst;
+
 	src = fdf->transform->dot;
 	dst = fdf->proj->dot;
 	while (src)
@@ -76,4 +77,31 @@ void		project(t_fdf *fdf, double proj_a, void(f)(t_dot*, t_dot*, double, t_fdf*)
 		src = src->next->down;
 		dst = dst->next->down;
 	}
+}
+
+void		update_figure(float const *shift, t_fdf *fdf,
+		void (*f)(float const*, t_dot*, t_dot*, t_fdf*))
+{
+	t_dot *src;
+	t_dot *dst;
+
+	if (!shift || !fdf)
+		return ;
+	src = fdf->map->dot;
+	dst = fdf->transform->dot;
+	while (1)
+	{
+		f(shift, src, dst, fdf);
+		src = src->next;
+		dst = dst->next;
+		if (src->last && src->down)
+		{
+			f(shift, src, dst, fdf);
+			src = src->next->down;
+			dst = dst->next->down;
+		}
+		if (!(src->down) && src->last)
+			break ;
+	}
+	f(shift, src, dst, fdf);
 }

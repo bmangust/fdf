@@ -12,53 +12,64 @@
 
 #include "fdf.h"
 
-void    clear_map(t_map *map)
+void	clear_dot(t_dot *dot)
+{
+	dot->down ? dot->down->up = NULL : 0;
+	dot->prev ? dot->prev->next = NULL : 0;
+	dot->next ? dot->next->prev = NULL : 0;
+	dot->up ? dot->up->down = NULL : 0;
+	dot->prev = NULL;
+	dot->next = NULL;
+	dot->down = NULL;
+	dot->up = NULL;
+	free(dot);
+}
+
+void	clear_map(t_map **map)
 {
 	t_dot	*tmp;
 	t_dot	*next;
 	t_dot	*row;
 
-	tmp = map->dot;
-	while (tmp)
+	row = (*map)->dot;
+	while (row)
 	{
-		row = tmp->down;
-		while (tmp)
+		tmp = row->next;
+		while (tmp != row)
 		{
 			next = tmp->next;
-			tmp->down ? tmp->down->up = NULL : 0;
-			tmp->prev ? tmp->prev->next = NULL : 0;
-			tmp->next ? tmp->next->prev = NULL : 0;
-			tmp->prev = NULL;
-			tmp->next = NULL;
-			tmp->down = NULL;
-			free(tmp);
+			clear_dot(tmp);
+			tmp = NULL;
 			tmp = next;
 		}
-		tmp = row;
+		row = row->down;
+		clear_dot(tmp);
+		tmp = NULL;
 	}
-	free(map);
+	free(*map);
+	*map = NULL;
 }
 
-void        terminate(t_fdf *fdf)
+void	terminate(t_fdf **fdf)
 {
-	if (fdf)
+	if (*fdf)
 	{
-		clear_map(fdf->map);
-		clear_map(fdf->proj);
-		clear_map(fdf->transform);
-		fdf->map->dot = NULL;
+		clear_map(&(*fdf)->map);
+		clear_map(&(*fdf)->proj);
+		clear_map(&(*fdf)->transform);
 	}
-	mlx_destroy_image(fdf->window->mlx, fdf->window->img);
-	mlx_destroy_window(fdf->window->mlx, fdf->window->win);
-	free(fdf->window);
-	free(fdf->coord);
-	free(fdf);
+	mlx_destroy_image((*fdf)->window->mlx, (*fdf)->window->img);
+	mlx_destroy_window((*fdf)->window->mlx, (*fdf)->window->win);
+	free((*fdf)->window);
+	free((*fdf)->cam);
+	free((*fdf)->mouse);
+	free(*fdf);
+	*fdf = NULL;
 	exit(0);
 }
 
-int		        close_w(void *param)
+int		close_w(void *param)
 {
-	terminate(param);
-	(void)param;
+	terminate((t_fdf **)&param);
 	exit(0);
 }

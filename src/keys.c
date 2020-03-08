@@ -42,23 +42,19 @@ static void	rotate_select(int key, t_fdf *fdf)
 
 static void	scale_select(int key, t_fdf *fdf)
 {
-	if (key == PLUS || key == NUMPLUS)
-		update_figure(SCALEZ, fdf, change_scale);
-	else if (key == MINUS || key == NUMMINUS)
-		update_figure(SCALENZ, fdf, change_scale);
-}
+	float m[3];
 
-void	change_distance(int key, t_fdf *fdf)
-{
-	if (key == W_KEY)
-		fdf->cam->distance += 0.1;
-	else if (key == Q_KEY)
-		fdf->cam->distance -= 0.1;
-	if (fdf->cam->distance < 1.1)
-		fdf->cam->distance = 1.1;
-	else if (fdf->cam->distance > 10)
-		fdf->cam->distance = 10;
-	draw(fdf);
+	m[0] = 1 / ROT_ANGLE;
+	m[1] = 1 / ROT_ANGLE;
+	m[2] = 1 / ROT_ANGLE;
+	if (key == NUMPLUS)
+		update_figure(SCALEZ, fdf, change_scale);
+	else if (key == NUMMINUS)
+		update_figure(SCALENZ, fdf, change_scale);
+	else if (key == PLUS)
+		update_figure(SCALEZ, fdf, change_height);
+	else if (key == MINUS)
+		update_figure(SCALENZ, fdf, change_height);
 }
 
 static void	projection_select(t_fdf *fdf)
@@ -69,27 +65,9 @@ static void	projection_select(t_fdf *fdf)
 		fdf->type_of_proj = PERSPECTIVE;
 	else if (fdf->type_of_proj == PERSPECTIVE)
 		fdf->type_of_proj = TRUEISO;
-	draw(fdf);
 }
 
-static void color_select(t_fdf *fdf, int key)
-{
-	if (key == NUM0)
-		fdf->colorsceme = (fdf->colorsceme + 1) % 5;
-	if (fdf->colorsceme == TEALORANGE)
-		change_color(GOLD, TEAL, fdf);
-	else if (fdf->colorsceme == BLACKWHITE)
-		change_color(WHITE, BLACK, fdf);
-	else if (fdf->colorsceme == PURPLEGOLD)
-		change_color(GOLD, PURPLE, fdf);
-	else if (fdf->colorsceme == SHADESBLUE)
-		change_color(LIGHTBLUE, BLUE, fdf);
-	else if (fdf->colorsceme == SINGLECOLOR)
-		change_color(fdf->color, fdf->color, fdf);
-	draw(fdf);
-}
-
-static int	key_press(int key, t_fdf *fdf)
+int			key_press(int key, t_fdf *fdf)
 {
 	if (key == UP || key == DOWN || key == RIGHT ||
 		key == LEFT || key == NUM2 || key == NUM8)
@@ -108,59 +86,7 @@ static int	key_press(int key, t_fdf *fdf)
 	else if (key == R_KEY)
 		update_figure(SCALENZ, fdf, reset_transform);
 	else if (key == ESC)
-		terminate(fdf);
+		terminate(&fdf);
+	draw(fdf);
 	return (0);
-}
-
-int	mouse_move(int x, int y, t_fdf *fdf)
-{
-	(void) x;
-	(void) y;
-	if (fdf->mouse->is_pressed)
-	{
-		fdf->cam->anglex += (x - fdf->mouse->prev_x) * ROT_ANGLE / 10;
-		fdf->cam->angley += (y - fdf->mouse->prev_y) * ROT_ANGLE / 10;
-		draw(fdf);
-	}
-	fdf->mouse->prev_x = fdf->mouse->x;
-	fdf->mouse->prev_y = fdf->mouse->y;
-	fdf->mouse->x = x;
-	fdf->mouse->y = y;
-	return (0);
-}
-
-int	mouse_press(int key, int x, int y, t_fdf *fdf)
-{
-	(void) x;
-	(void) y;
-	if (key == WHUP || key == WHDN)
-	{
-		if (key == WHDN)
-			update_figure(SHIFTNZ, fdf, shift_figure);
-		else
-			update_figure(SHIFTZ, fdf, shift_figure);
-		draw(fdf);
-	}
-	else if (key == LMB)
-		fdf->mouse->is_pressed = 1;
-	return (0);
-}
-
-int	mouse_release(int key, int x, int y, t_fdf *fdf)
-{
-	(void) x;
-	(void) y;
-	if (key == LMB)
-		fdf->mouse->is_pressed = 0;
-	return (0);
-}
-
-
-void 		key_hooks(t_fdf *fdf)
-{
-	mlx_hook(fdf->window->win, 2, 0, key_press, fdf);
-//	mlx_hook(fdf->window->win, 4, 0, mouse_press, fdf);
-//	mlx_hook(fdf->window->win, 5, 0, mouse_release, fdf);
-//	mlx_hook(fdf->window->win, 6, 0, mouse_move, fdf);
-	mlx_hook(fdf->window->win, CLOSE, 0, close_w, fdf);
 }

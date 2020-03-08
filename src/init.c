@@ -10,22 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-
 #include "fdf.h"
 
-t_coord		*new_coord(int x, int y)
-{
-	t_coord *new;
-
-	new = (t_coord*)malloc(sizeof(t_coord));
-	if (!new)
-		return (NULL);
-	new->x = x;
-	new->y = y;
-	return (new);
-}
-
-t_mouse		*new_mouse()
+t_mouse		*new_mouse(void)
 {
 	t_mouse *new;
 
@@ -51,13 +38,13 @@ t_cam		*new_camera(void)
 	new->y = 0;
 	new->z = 0;
 	new->distance = 2.2;
-	new->anglex = 0;
-	new->angley = 0;
-	new->anglez = 0;
+	new->ax = 0;
+	new->ay = 0;
+	new->az = 0;
 	return (new);
 }
 
-t_window	*new_window(void *mlx, void *win, void *img, int width, int height)
+t_window	*new_window(void *mlx, void *win, void *img)
 {
 	t_window *new;
 
@@ -69,8 +56,8 @@ t_window	*new_window(void *mlx, void *win, void *img, int width, int height)
 	new->mlx = mlx;
 	new->win = win;
 	new->img = img;
-	new->width = width;
-	new->height = height;
+	new->width = IMAGE_WIDTH;
+	new->height = IMAGE_HEIGHT;
 	new->clicked = 0;
 	new->bits_per_pixel = 32;
 	new->size_line = new->width * new->bits_per_pixel;
@@ -78,7 +65,7 @@ t_window	*new_window(void *mlx, void *win, void *img, int width, int height)
 	return (new);
 }
 
-t_fdf	*new_fdf(t_window *window, t_map *map)
+t_fdf		*new_fdf(t_window *window, t_map *map)
 {
 	t_fdf *new;
 
@@ -95,12 +82,11 @@ t_fdf	*new_fdf(t_window *window, t_map *map)
 	copy_map(new->map, new->proj);
 	if (!new->proj || !new->transform)
 		return (NULL);
-	new->coord = new_coord(0, 0);
 	new->zscale = 1;
 	new->xyscale = 40;
-	new->colorsceme = TEALORANGE;
+	new->colorsceme = BLACKWHITE;
 	new->color = TEAL;
-	new->type_of_proj = PERSPECTIVE;
+	new->type_of_proj = TRUEISO;
 	return (new);
 }
 
@@ -113,9 +99,8 @@ t_map		*new_map(void)
 		return (NULL);
 	new->width = 0;
 	new->height = 0;
-	new->min_z = 0;
-	new->max_z = 0;
-	new->coords = NULL;
 	new->dot = NULL;
+	new->max = NULL;
+	new->min = NULL;
 	return (new);
 }

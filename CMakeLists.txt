@@ -88,16 +88,18 @@ add_executable(fdf
         minilibx/mlx_rgb.h
         minilibx/mlx_shaders.c
         minilibx/mlx_xpm.c
+        src/color.c
         src/dll.c
+        src/dll2.c
         src/image.c
         src/init.c
         src/input.c
         src/keys.c
+        src/keys2.c
         src/main.c
-        src/matrixes.c
         src/projections.c
         src/terminate.c
-        src/transform.c libft/src/ft_abs.c)
+        src/transform.c src/keys2.c)
 
 target_link_libraries(fdf "-framework AppKit")
 target_link_libraries(fdf "-framework OpenGL")

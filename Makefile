@@ -1,15 +1,17 @@
 .PHONY: all clean fclean re
 
 SRC = 	main.c \
+        color.c \
 		dll.c \
+		dll2.c \
 		image.c \
 		init.c \
 		input.c \
 		keys.c \
+		keys2.c \
 		terminate.c \
 		transform.c \
-		projections.c \
-		matrixes.c
+		projections.c
 
 
 NAME = fdf

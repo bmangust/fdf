@@ -12,22 +12,48 @@
 
 #include "fdf.h"
 
-static int	count_map_params(char *file, t_map *map, char *line)
+static int	validate_line(char *line)
 {
-	int		ret[2];
-	int		i;
+	int i;
+	int cnt;
 
 	i = -1;
+	cnt = 0;
+	while (line[++i])
+		if ((line[i] >= '0' && line[i] <= '9') || ft_strchr(" -", line[i]))
+		{
+			if (line[i] != ' ' && (line[i + 1] == ' ' || line[i + 1] == '\0'))
+				cnt++;
+			continue;
+		}
+		else
+			return (ERROR);
+	return (cnt);
+}
+
+/*
+**	ret[0] - return from open
+**	ret[1] - return from gnl
+**	ret[2] - number of tokens in current line
+*/
+
+static int	count_map_params(char *file, t_map *map, char *line)
+{
+	int		ret[3];
+
 	if ((ret[0] = open(file, O_RDONLY)) == -1)
 		return (ERROR);
 	while ((ret[1] = get_next_line(ret[0], &line)) > 0)
 	{
-		if (ret[1] == -1)
+		if (ret[1] == -1 || (ret[2] = validate_line(line)) == ERROR)
 			return (ERROR);
-		if (map->height == 0)
-			while (line[++i])
-				if (line[i] != ' ' && (line[i+1] == ' ' || line[i+1] == '\0'))
-					map->width += 1;
+		if (map->width == 0)
+			map->width = ret[2];
+		else if (map->width != ret[2])
+		{
+			ft_strdel(&line);
+			return (ERROR);
+		}
 		++(map->height);
 		ft_strdel(&line);
 	}
@@ -35,24 +61,24 @@ static int	count_map_params(char *file, t_map *map, char *line)
 	return (OK);
 }
 
-int		find_next_number(char *line, int i)
+int			find_next_number(char *line, int i)
 {
-    int j;
+	int j;
 
 	if (line[i] == ' ')
 	{
-		while(line[i] == ' ')
+		while (line[i] == ' ')
 			++i;
-		while (line[i] != ' ' && line[i] != '\0')
+		while (line[i] && line[i] != ' ')
 			++i;
 		j = i;
 		while (line[j] == ' ')
-		    ++j;
+			++j;
 		if (line[j] == '\0')
-		    return (j);
+			return (j);
 	}
 	else
-		while (line[i] != ' ' && line[i] != '\0')
+		while (line[i] && line[i] != ' ')
 			++i;
 	return (i);
 }
@@ -63,7 +89,7 @@ int		find_next_number(char *line, int i)
 **	i[2] - index y in array
 */
 
-int		get_coordinates(char *file, t_map *map, char *line)
+int			get_coordinates(char *file, t_map *map, char *line)
 {
 	int		i[3];
 
@@ -72,21 +98,18 @@ int		get_coordinates(char *file, t_map *map, char *line)
 		return (ERROR);
 	while ((i[1] = get_next_line(i[0], &line)) > 0)
 	{
-		attach_row(&(map->dot), create_row(line, map, i[2]));
+		if (!attach_row(&(map->dot), create_row(line, map, i[2])))
+			return (ERROR);
 		ft_strdel(&line);
 		++i[2];
 	}
 	if (i[1] == -1)
 		return (ERROR);
 	close(i[0]);
-	map->max = new_dot(0,0,map->max_z);
-	map->max->color = TEAL;
-	map->min = new_dot(0,0,map->min_z);
-	map->min->color = TEAL;
 	return (OK);
 }
 
-int		input(char *file, t_map *map)
+int			input(char *file, t_map *map)
 {
 	char	*line;
 
@@ -95,47 +118,8 @@ int		input(char *file, t_map *map)
 		get_coordinates(file, map, line) == ERROR)
 	{
 		ft_strdel(&line);
-		clear_map(map);
+		clear_map(&map);
 		return (ERROR);
 	}
 	return (OK);
-}
-
-/*
-**	helper
-*/
-
-void    normalize_map(t_map *map)
-{
-    t_dot	*tmp;
-    int     i;
-
-    i = 0;
-    tmp = map->dot;
-    while (i < map->width * map->height)
-    {
-
-        tmp = tmp->next;
-        if (i != 0 && (i + 1) % map->width == 0)
-            tmp = tmp->down;
-        ++i;
-    }
-}
-
-void    print_map(t_map *map)
-{
-    t_dot	*tmp;
-
-    tmp = map->dot;
-    for (int i = 0; i < map->width * map->height; ++i)
-    {
-        printf("%3f", tmp->z);
-        tmp = tmp->next;
-        if (i != 0 && (i + 1) % map->width == 0)
-        {
-            tmp = tmp->down;
-            printf("\n");
-        }
-    }
-    printf("\n");
 }
