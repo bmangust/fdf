@@ -11,7 +11,8 @@ SRC = 	main.c \
 		keys2.c \
 		terminate.c \
 		transform.c \
-		projections.c
+		projections.c \
+		projections2.c
 
 
 NAME = fdf

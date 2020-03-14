@@ -62,7 +62,6 @@ void	terminate(t_fdf **fdf)
 	mlx_destroy_window((*fdf)->window->mlx, (*fdf)->window->win);
 	free((*fdf)->window);
 	free((*fdf)->cam);
-	free((*fdf)->mouse);
 	free(*fdf);
 	*fdf = NULL;
 	exit(0);

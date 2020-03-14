@@ -54,8 +54,12 @@
 # define P_KEY 35
 # define R_KEY 15
 # define W_KEY 13
-# define Q_KEY 12
+# define S_KEY 1
 # define CLOSE 17
+# define LCTRL 256
+# define LSHIFT 257
+# define RSHIFT 258
+# define RCTRL 269
 # define LMB 1
 # define RMB 2
 # define MMB 3
@@ -153,16 +157,9 @@ typedef struct		s_cam
 	double			ay;
 	double			az;
 	double			distance;
+	double			rotation_speed;
+	double			move_speed;
 }					t_cam;
-
-typedef struct		s_mouse
-{
-	int				x;
-	int				y;
-	int				prev_x;
-	int				prev_y;
-	int				is_pressed;
-}					t_mouse;
 
 typedef struct		s_map
 {
@@ -178,8 +175,8 @@ typedef struct		s_fdf
 	t_window		*window;
 	t_map			*map;
 	t_map			*transform;
+	t_map			*rotate;
 	t_map			*proj;
-	t_mouse			*mouse;
 	t_cam			*cam;
 	int				zscale;
 	int				xyscale;
@@ -192,17 +189,18 @@ int					input(char *file, t_map *map);
 t_map				*new_map(void);
 t_window			*new_window(void *mlx, void *win, void *img);
 t_fdf				*new_fdf(t_window *window, t_map *map);
-t_dot				*new_dot(int x, int y, int z);
+t_dot				*new_dot(double x, double y, double z);
 t_dot				*add_last_dot(t_dot **head, t_dot *new);
 t_dot				*create_row(char *line, t_map *map, int y);
 t_dot				*attach_row(t_dot **header, t_dot *row);
 
 void				key_hooks(t_fdf *fdf);
-void				update_figure(float const *shift, t_fdf *fdf,
-					void(*f)(float const *shift, t_dot *dot, t_dot*,
-								t_fdf *fdf));
-void				rotate(float const *shift, t_dot *dst, t_dot *src,
-								t_fdf *fdf);
+void				update_figure(float const *shift, t_fdf *fdf, void(*f)
+						(float const *shift, t_dot *, t_dot*, t_fdf *fdf));
+void				reset(float const *shift, t_fdf *fdf, void(*f)
+						(t_dot *, t_dot *, t_dot*, t_fdf *fdf));
+void				rotate(float const *shift, t_dot *dst,
+						t_dot *src, t_fdf *fdf);
 void				change_distance(int key, t_fdf *fdf);
 void				color_select(t_fdf *fdf, int key);
 int					key_press(int key, t_fdf *fdf);
@@ -210,10 +208,12 @@ void				shift_figure(float const *shift, t_dot *dot,
 								t_dot *dst, t_fdf *fdf);
 void				change_scale(float const *shift, t_dot *dot,
 								t_dot *dst, t_fdf *fdf);
-void				reset_transform(float const *shift, t_dot *src,
+void				reset_transform(t_dot *src, t_dot *trf,
+								t_dot *rot, t_fdf *fdf);
+void				change_height_up(float const *shift, t_dot *src,
 								t_dot *dst, t_fdf *fdf);
-void				change_height(float const *shift, t_dot *src,
-								t_dot *dst, t_fdf *fdf);
+void				change_height_down(float const *shift, t_dot *src,
+									 t_dot *dst, t_fdf *fdf);
 void				change_color(t_fdf *fdf);
 void				set_max_min_colors(t_fdf *fdf);
 uint32_t			get_color(t_dot current, t_dot start, t_dot end,
@@ -238,5 +238,10 @@ void				project(t_fdf *fdf, double proj_a, void(f)(t_dot*, t_dot*,
 								double, t_fdf*));
 int					get_light(double start, double end, double percentage);
 double				percent(double start, double end, double current);
+void				project_one_by_one(t_fdf *fdf);
+void	rotate_x(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf);
+void	rotate_y(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf);
+void	rotate_z(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf);
+void	update_rotatation(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf);
 
 #endif

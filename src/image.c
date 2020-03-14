@@ -78,6 +78,7 @@ int			draw(t_fdf *fdf)
 	if (!fdf)
 		return (ERROR);
 	clear_img(fdf);
+//	project_one_by_one(fdf);
 	if (fdf->type_of_proj == PERSPECTIVE)
 		project(fdf, TRUEISO_ANGLE, project_perspective);
 	else if (fdf->type_of_proj == TRUEISO)
@@ -91,35 +92,32 @@ int			draw(t_fdf *fdf)
 }
 
 /*
-**	delta[0], delta[1] - diff between x and y resp.
-**	delta[2] error (delta[0] - delta[1])
+**	delta[0], delta[1] - diff	between x and y resp.
+**	delta[2]					error (delta[0] - delta[1])
 */
 
 void		draw_line(t_dot dot1, t_dot dot2, t_fdf *fdf)
 {
 	long	delta[3];
-	int		sign[2];
 	t_dot	cur;
 
 	delta[0] = ft_absint((int)(dot1.x - dot2.x));
 	delta[1] = ft_absint((int)(dot1.y - dot2.y));
-	sign[0] = dot2.x < dot1.x ? 1 : -1;
-	sign[1] = dot2.y < dot1.y ? 1 : -1;
 	delta[2] = delta[0] - delta[1];
 	cur = dot2;
-	while ((dot1.x != cur.x || dot1.y != cur.y))
+	while (dot1.x != cur.x || dot1.y != cur.y)
 	{
 		pixel_put(fdf->window->img, cur, fdf,
 				get_color(cur, dot1, dot2, delta));
 		if ((cur.x - dot1.x) && (delta[2] * 2 > -delta[1]))
 		{
 			delta[2] -= delta[1];
-			cur.x += sign[0];
+			cur.x += dot2.x < dot1.x ? 1 : -1;
 		}
 		if ((cur.y - dot1.y) && (delta[2] * 2 < delta[0]))
 		{
 			delta[2] += delta[0];
-			cur.y += sign[1];
+			cur.y += dot2.y < dot1.y ? 1 : -1;
 		}
 	}
 }

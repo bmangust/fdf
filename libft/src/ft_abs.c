@@ -25,4 +25,3 @@ double	ft_absfloat(double f)
 		return (-f);
 	return (f);
 }
-

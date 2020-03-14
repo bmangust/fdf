@@ -24,17 +24,20 @@ void		project_perspective(t_dot *src, t_dot *dest,
 								double proj_angle, t_fdf *fdf)
 {
 	double	z;
+	t_dot 	*tmp;
 
 	(void)proj_angle;
 	if (src->z <= fdf->cam->distance)
 	{
+		tmp = new_dot(src->x, src->y, src->z);
 		dest->show = 1;
-		z = 4 / (fdf->cam->distance - src->z);
-		if (fdf->cam->distance - src->z == INFINITY ||
-			fdf->cam->distance - src->z == -INFINITY)
+		z = 4 / (fdf->cam->distance - tmp->z);
+		if (fdf->cam->distance - tmp->z == INFINITY ||
+			fdf->cam->distance - tmp->z == -INFINITY)
 			z = DBL_MIN;
-		dest->x = (int)(src->x * z * fdf->xyscale) + XBIAS;
-		dest->y = (int)(src->y * z * fdf->xyscale) + YBIAS;
+		dest->x = (int)(tmp->x * z * fdf->xyscale) + XBIAS + fdf->cam->x;
+		dest->y = (int)(tmp->y * z * fdf->xyscale) + YBIAS + fdf->cam->y;
+		free(tmp);
 	}
 	else
 		dest->show = 0;
@@ -42,40 +45,44 @@ void		project_perspective(t_dot *src, t_dot *dest,
 
 void		iso(t_dot *src, t_dot *dst, double proj_angle, t_fdf *fdf)
 {
+	t_dot 	*tmp;
+
+	tmp = new_dot(src->x, src->y, src->z);
 	dst->show = 1;
-	dst->x = (int)((src->x - src->y) * cos(proj_angle) * fdf->xyscale) + XBIAS;
-	dst->y = (int)(-src->z * fdf->zscale + (src->x + src->y)
-							* sin(proj_angle) * fdf->xyscale) + YBIAS;
+	dst->x = (int)((tmp->x - tmp->y) * cos(proj_angle) * fdf->xyscale)
+					+ XBIAS + fdf->cam->x;
+	dst->y = (int)(-tmp->z * fdf->zscale + (tmp->x + tmp->y)
+					* sin(proj_angle) * fdf->xyscale) + YBIAS + fdf->cam->y;
+	free(tmp);
 }
 
-void		project(t_fdf *fdf, double proj_a,
+void		project(t_fdf *fdf, double proj_angle,
 				void (f)(t_dot*, t_dot*, double, t_fdf*))
 {
-	t_dot *src;
-	t_dot *dst;
+	t_dot *d[2];
 
-	src = fdf->transform->dot;
-	dst = fdf->proj->dot;
-	while (src)
+	d[0] = fdf->rotate->dot;
+	d[1] = fdf->proj->dot;
+	while (d[0])
 	{
-		f(src, dst, proj_a, fdf);
-		if (src->down)
+		f(d[0], d[1], proj_angle, fdf);
+		if (d[0]->down)
 		{
-			f(src->down, dst->down, proj_a, fdf);
-			if ((is_inside(*dst) || is_inside(*dst->down)) && dst->show)
-				draw_line(*dst, *dst->down, fdf);
+			f(d[0]->down, d[1]->down, proj_angle, fdf);
+			if ((is_inside(*d[1]) || is_inside(*d[1]->down)) && d[1]->show)
+				draw_line(*d[1], *d[1]->down, fdf);
 		}
-		if (!(src->last))
+		if (!(d[0]->last))
 		{
-			f(src->next, dst->next, proj_a, fdf);
-			if ((is_inside(*dst) || is_inside(*dst->next)) && dst->show)
-				draw_line(*dst, *dst->next, fdf);
-			src = src->next;
-			dst = dst->next;
+			f(d[0]->next, d[1]->next, proj_angle, fdf);
+			if ((is_inside(*d[1]) || is_inside(*d[1]->next)) && d[1]->show)
+				draw_line(*d[1], *d[1]->next, fdf);
+			d[0] = d[0]->next;
+			d[1] = d[1]->next;
 			continue ;
 		}
-		src = src->next->down;
-		dst = dst->next->down;
+		d[0] = d[0]->next->down;
+		d[1] = d[1]->next->down;
 	}
 }
 
@@ -85,10 +92,12 @@ void		update_figure(float const *shift, t_fdf *fdf,
 	t_dot *src;
 	t_dot *dst;
 
-	if (!shift || !fdf)
+	if (!fdf)
 		return ;
-	src = fdf->map->dot;
-	dst = fdf->transform->dot;
+//	dot[0] = shift ? fdf->map->dot : fdf->transform->dot;
+//	dst = shift ? fdf->transform->dot : fdf->rotate->dot;
+	src = shift ? fdf->transform->dot : fdf->map->dot;
+	dst = shift ? fdf->rotate->dot : fdf->transform->dot;
 	while (1)
 	{
 		f(shift, src, dst, fdf);
@@ -104,4 +113,41 @@ void		update_figure(float const *shift, t_fdf *fdf,
 			break ;
 	}
 	f(shift, src, dst, fdf);
+}
+
+void		reset_angles(t_fdf *fdf)
+{
+	fdf->cam->ax = 0;
+	fdf->cam->ay = 0;
+	fdf->cam->az = 0;
+}
+
+void		reset(float const *shift, t_fdf *fdf,
+						  void (*f)(t_dot*, t_dot*, t_dot*, t_fdf*))
+{
+	t_dot *dot[3];
+
+	if (!fdf)
+		return ;
+	dot[0] = fdf->map->dot;
+	dot[1] = fdf->transform->dot;
+	dot[2] = fdf->rotate->dot;
+	while (1)
+	{
+		f(dot[0], dot[1], dot[2], fdf);
+		dot[0] = dot[0]->next;
+		dot[1] = dot[1]->next;
+		dot[2] = dot[2]->next;
+		if (dot[0]->last && dot[0]->down)
+		{
+			f(dot[0], dot[1], dot[2], fdf);
+			dot[0] = dot[0]->next->down;
+			dot[1] = dot[1]->next->down;
+			dot[2] = dot[2]->next->down;
+		}
+		if (!(dot[0]->down) && dot[0]->last)
+			break ;
+	}
+	f(dot[0], dot[1], dot[2], fdf);
+	reset_angles(fdf);
 }

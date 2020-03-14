@@ -85,9 +85,9 @@ int			get_light(double start, double end, double percentage)
 
 uint32_t	get_color(t_dot current, t_dot start, t_dot end, long *delta)
 {
-	int		red;
-	int		green;
-	int		blue;
+	int64_t	red;
+	int64_t	green;
+	int64_t	blue;
 	double	percentage;
 
 	if (current.color == start.color)

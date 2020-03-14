@@ -12,18 +12,23 @@
 
 #include "fdf.h"
 
-t_mouse		*new_mouse(void)
+t_dot		*new_dot(double x, double y, double z)
 {
-	t_mouse *new;
+	t_dot *new;
 
-	new = (t_mouse*)malloc(sizeof(t_mouse));
+	new = (t_dot*)malloc(sizeof(t_dot));
 	if (!new)
 		return (NULL);
-	new->x = 0;
-	new->y = 0;
-	new->prev_x = 0;
-	new->prev_y = 0;
-	new->is_pressed = 0;
+	new->x = x;
+	new->y = y;
+	new->z = z;
+	new->show = 1;
+	new->last = 1;
+	new->color = new->z == 0 ? BLACK : WHITE;
+	new->up = new;
+	new->down = new;
+	new->next = new;
+	new->prev = new;
 	return (new);
 }
 
@@ -38,6 +43,8 @@ t_cam		*new_camera(void)
 	new->y = 0;
 	new->z = 0;
 	new->distance = 2.2;
+	new->rotation_speed = 2;
+	new->move_speed = 15;
 	new->ax = 0;
 	new->ay = 0;
 	new->az = 0;
@@ -75,10 +82,11 @@ t_fdf		*new_fdf(t_window *window, t_map *map)
 	new->window = window;
 	new->map = map;
 	new->transform = new_map();
+	new->rotate = new_map();
 	new->proj = new_map();
-	new->mouse = new_mouse();
 	new->cam = new_camera();
 	copy_map(new->map, new->transform);
+	copy_map(new->map, new->rotate);
 	copy_map(new->map, new->proj);
 	if (!new->proj || !new->transform)
 		return (NULL);

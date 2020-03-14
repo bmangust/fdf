@@ -12,26 +12,6 @@
 
 #include "fdf.h"
 
-t_dot	*new_dot(int x, int y, int z)
-{
-	t_dot *new;
-
-	new = (t_dot*)malloc(sizeof(t_dot));
-	if (!new)
-		return (NULL);
-	new->x = x;
-	new->y = y;
-	new->z = z;
-	new->show = 1;
-	new->last = 1;
-	new->color = new->z == 0 ? BLACK : WHITE;
-	new->up = new;
-	new->down = new;
-	new->next = new;
-	new->prev = new;
-	return (new);
-}
-
 t_dot	*add_last_dot(t_dot **head, t_dot *new)
 {
 	t_dot *tmp;

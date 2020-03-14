@@ -99,7 +99,7 @@ add_executable(fdf
         src/main.c
         src/projections.c
         src/terminate.c
-        src/transform.c src/keys2.c)
+        src/transform.c src/keys2.c src/projections2.c)
 
 target_link_libraries(fdf "-framework AppKit")
 target_link_libraries(fdf "-framework OpenGL")

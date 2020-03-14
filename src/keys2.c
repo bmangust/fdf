@@ -14,9 +14,9 @@
 
 void	change_distance(int key, t_fdf *fdf)
 {
-	if (key == W_KEY)
+	if (key == S_KEY)
 		fdf->cam->distance += 0.1;
-	else if (key == Q_KEY)
+	else if (key == W_KEY)
 		fdf->cam->distance -= 0.1;
 	if (fdf->cam->distance < 1.1)
 		fdf->cam->distance = 1.1;
@@ -32,8 +32,19 @@ void	color_select(t_fdf *fdf, int key)
 	change_color(fdf);
 }
 
+int			key_release(int key, t_fdf *fdf)
+{
+	if (key == LSHIFT || key == RSHIFT)
+		fdf->cam->move_speed = 15;
+	if (key == LCTRL || key == RCTRL)
+		fdf->cam->rotation_speed = 2;
+	draw(fdf);
+	return (0);
+}
+
 void	key_hooks(t_fdf *fdf)
 {
 	mlx_hook(fdf->window->win, 2, 0, key_press, fdf);
+	mlx_hook(fdf->window->win, 3, 0, key_release, fdf);
 	mlx_hook(fdf->window->win, CLOSE, 0, close_w, fdf);
 }
