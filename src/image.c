@@ -16,8 +16,7 @@ void		print_menu(t_fdf *fdf, void *mlx, void *win)
 {
 	int y;
 
-	y = 10;
-	mlx_string_put(mlx, win, 380, y, 0xFAFAFA, "controls");
+	mlx_string_put(mlx, win, 380, y = 10, 0xFAFAFA, "controls");
 	mlx_string_put(mlx, win, 20, y += 20,
 					LIGHTGRAY, "NUM 1 - 3   rotate figure by X axes");
 	mlx_string_put(mlx, win, 20, y += 20,
@@ -28,17 +27,17 @@ void		print_menu(t_fdf *fdf, void *mlx, void *win)
 					LIGHTGRAY, "P           change projection type");
 	mlx_string_put(mlx, win, 20, y += 20,
 					LIGHTGRAY, "arrows      move figure");
-	y = 10;
-	mlx_string_put(mlx, win, fdf->window->width / 2, y += 20,
+	mlx_string_put(mlx, win, fdf->window->width / 2, y = 30,
 					LIGHTGRAY, "NUM 0   change color scheme");
 	mlx_string_put(mlx, win, fdf->window->width / 2, y += 20,
 					LIGHTGRAY, "NUM - / +   scale picture");
 	mlx_string_put(mlx, win, fdf->window->width / 2, y += 20,
 					LIGHTGRAY, "R   reset transformations");
 	mlx_string_put(mlx, win, fdf->window->width / 2, y += 20,
-					LIGHTGRAY, "Q & W       change projection distance");
+					LIGHTGRAY, "S & W       change projection distance");
 	mlx_string_put(mlx, win, fdf->window->width / 2, y += 20,
 					LIGHTGRAY, "            (in perspective)");
+	print_debug_menu(fdf, mlx, win);
 }
 
 void		clear_img(t_fdf *fdf)
@@ -61,7 +60,7 @@ static void	pixel_put(void *img, t_dot dot, t_fdf *fdf, unsigned int color)
 	unsigned int	i;
 	char			*addr;
 
-	if (is_inside(dot) && dot.y > MENU_HEIGHT)
+	if (is_inside(dot) && dot.y > fdf->window->menu_height)
 	{
 		addr = mlx_get_data_addr(img, &(fdf->window->bits_per_pixel),
 						&(fdf->window->size_line), &(fdf->window->endian));
@@ -78,7 +77,6 @@ int			draw(t_fdf *fdf)
 	if (!fdf)
 		return (ERROR);
 	clear_img(fdf);
-//	project_one_by_one(fdf);
 	if (fdf->type_of_proj == PERSPECTIVE)
 		project(fdf, TRUEISO_ANGLE, project_perspective);
 	else if (fdf->type_of_proj == TRUEISO)

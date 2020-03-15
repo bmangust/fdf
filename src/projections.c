@@ -24,7 +24,7 @@ void		project_perspective(t_dot *src, t_dot *dest,
 								double proj_angle, t_fdf *fdf)
 {
 	double	z;
-	t_dot 	*tmp;
+	t_dot	*tmp;
 
 	(void)proj_angle;
 	if (src->z <= fdf->cam->distance)
@@ -45,7 +45,7 @@ void		project_perspective(t_dot *src, t_dot *dest,
 
 void		iso(t_dot *src, t_dot *dst, double proj_angle, t_fdf *fdf)
 {
-	t_dot 	*tmp;
+	t_dot	*tmp;
 
 	tmp = new_dot(src->x, src->y, src->z);
 	dst->show = 1;
@@ -59,7 +59,7 @@ void		iso(t_dot *src, t_dot *dst, double proj_angle, t_fdf *fdf)
 void		project(t_fdf *fdf, double proj_angle,
 				void (f)(t_dot*, t_dot*, double, t_fdf*))
 {
-	t_dot *d[2];
+	t_dot	*d[2];
 
 	d[0] = fdf->rotate->dot;
 	d[1] = fdf->proj->dot;
@@ -89,13 +89,11 @@ void		project(t_fdf *fdf, double proj_angle,
 void		update_figure(float const *shift, t_fdf *fdf,
 		void (*f)(float const*, t_dot*, t_dot*, t_fdf*))
 {
-	t_dot *src;
-	t_dot *dst;
+	t_dot	*src;
+	t_dot	*dst;
 
 	if (!fdf)
 		return ;
-//	dot[0] = shift ? fdf->map->dot : fdf->transform->dot;
-//	dst = shift ? fdf->transform->dot : fdf->rotate->dot;
 	src = shift ? fdf->transform->dot : fdf->map->dot;
 	dst = shift ? fdf->rotate->dot : fdf->transform->dot;
 	while (1)
@@ -113,41 +111,4 @@ void		update_figure(float const *shift, t_fdf *fdf,
 			break ;
 	}
 	f(shift, src, dst, fdf);
-}
-
-void		reset_angles(t_fdf *fdf)
-{
-	fdf->cam->ax = 0;
-	fdf->cam->ay = 0;
-	fdf->cam->az = 0;
-}
-
-void		reset(float const *shift, t_fdf *fdf,
-						  void (*f)(t_dot*, t_dot*, t_dot*, t_fdf*))
-{
-	t_dot *dot[3];
-
-	if (!fdf)
-		return ;
-	dot[0] = fdf->map->dot;
-	dot[1] = fdf->transform->dot;
-	dot[2] = fdf->rotate->dot;
-	while (1)
-	{
-		f(dot[0], dot[1], dot[2], fdf);
-		dot[0] = dot[0]->next;
-		dot[1] = dot[1]->next;
-		dot[2] = dot[2]->next;
-		if (dot[0]->last && dot[0]->down)
-		{
-			f(dot[0], dot[1], dot[2], fdf);
-			dot[0] = dot[0]->next->down;
-			dot[1] = dot[1]->next->down;
-			dot[2] = dot[2]->next->down;
-		}
-		if (!(dot[0]->down) && dot[0]->last)
-			break ;
-	}
-	f(dot[0], dot[1], dot[2], fdf);
-	reset_angles(fdf);
 }

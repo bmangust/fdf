@@ -2,6 +2,7 @@
 
 SRC = 	main.c \
         color.c \
+		debug.c \
 		dll.c \
 		dll2.c \
 		image.c \
@@ -11,8 +12,8 @@ SRC = 	main.c \
 		keys2.c \
 		terminate.c \
 		transform.c \
-		projections.c \
-		projections2.c
+		transform2.c \
+		projections.c
 
 
 NAME = fdf
@@ -23,7 +24,9 @@ OBJ_DIR = ./obj
 
 INC_DIR = ./inc
 
-LIBFT_DIR = ./libft
+LIB = ftprintf
+
+LIBFT_DIR = ./printf
 
 LIBFT_INC_DIR = $(LIBFT_DIR)/inc
 
@@ -36,7 +39,7 @@ CC = gcc
 INCLUDES = -I$(INC_DIR) -I$(LIBFT_INC_DIR) -I$(MINILIBX_DIR)
 
 LIBRARIES = -L$(LIBFT_DIR) -L$(MINILIBX_DIR) \
-			-lft -lmlx -framework OpenGL -framework AppKit
+			-l$(LIB) -lmlx -framework OpenGL -framework AppKit
 
 OBJ = $(SRC:.c=.o)
 
@@ -45,8 +48,8 @@ OBJS = $(addprefix $(OBJ_DIR)/, $(OBJ))
 all: $(NAME)
 
 $(NAME): $(OBJ_DIR) $(OBJS)
-	@echo "Compiling libft. Please wait..."
-	@make -C libft/
+	@echo "Compiling library. Please wait..."
+	@make -C $(LIBFT_DIR)/
 	@echo "libft done"
 	@echo "Compiling minilibx. Please wait..."
 	@make -C minilibx/

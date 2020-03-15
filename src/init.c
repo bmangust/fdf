@@ -63,9 +63,9 @@ t_window	*new_window(void *mlx, void *win, void *img)
 	new->mlx = mlx;
 	new->win = win;
 	new->img = img;
+	new->menu_height = MENU_HEIGHT;
 	new->width = IMAGE_WIDTH;
 	new->height = IMAGE_HEIGHT;
-	new->clicked = 0;
 	new->bits_per_pixel = 32;
 	new->size_line = new->width * new->bits_per_pixel;
 	new->endian = 0;
@@ -92,6 +92,7 @@ t_fdf		*new_fdf(t_window *window, t_map *map)
 		return (NULL);
 	new->zscale = 1;
 	new->xyscale = 40;
+	new->debug = 0;
 	new->colorsceme = BLACKWHITE;
 	new->color = TEAL;
 	new->type_of_proj = TRUEISO;

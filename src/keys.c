@@ -27,36 +27,18 @@ static void	move_select(int key, t_fdf *fdf)
 static void	rotate_select(int key, t_fdf *fdf)
 {
 	if (key == NUM9)
-	{
 		update_figure(SHIFTZ, fdf, rotate);
-		fdf->cam->az += ROT_ANGLE * SHIFTZ[2] * fdf->cam->rotation_speed;
-	}
 	else if (key == NUM7)
-	{
 		update_figure(SHIFTNZ, fdf, rotate);
-		fdf->cam->az += ROT_ANGLE * SHIFTNZ[2] * fdf->cam->rotation_speed;
-	}
 	else if (key == NUM6)
-	{
 		update_figure(SHIFTY, fdf, rotate);
-		fdf->cam->ay += ROT_ANGLE * SHIFTY[1] * fdf->cam->rotation_speed;
-	}
 	else if (key == NUM4)
-	{
 		update_figure(SHIFTNY, fdf, rotate);
-		fdf->cam->ay += ROT_ANGLE * SHIFTNY[1] * fdf->cam->rotation_speed;
-	}
 	else if (key == NUM3)
-	{
 		update_figure(SHIFTX, fdf, rotate);
-		fdf->cam->ax += ROT_ANGLE * SHIFTX[0] * fdf->cam->rotation_speed;
-	}
 	else if (key == NUM1)
-	{
 		update_figure(SHIFTNX, fdf, rotate);
-		fdf->cam->ax += ROT_ANGLE * SHIFTNX[0] * fdf->cam->rotation_speed;
-	}
-	printf("ax: %f ay: %f az: %f\n\n", fdf->cam->ax, fdf->cam->ay, fdf->cam->az);
+	rotate_update(key, fdf);
 }
 
 static void	scale_select(int key, t_fdf *fdf)
@@ -67,17 +49,23 @@ static void	scale_select(int key, t_fdf *fdf)
 		update_figure(SCALENZ, fdf, change_scale);
 	else if (key == PLUS)
 	{
-		printf("change_height_up\n");
+		if (fdf->debug)
+			ft_printf("change_height_up\nax: %f ay: %f az: %f\n\n",
+					fdf->cam->ax, fdf->cam->ay, fdf->cam->az);
 		update_figure(NULL, fdf, change_height_up);
 		update_figure(SCALEZ, fdf, update_rotatation);
-		printf("\n");
+		if (fdf->debug)
+			ft_printf("\n");
 	}
 	else if (key == MINUS)
 	{
-		printf("change_height_down\n");
+		if (fdf->debug)
+			ft_printf("change_height_down\nax: %f ay: %f az: %f\n\n",
+					fdf->cam->ax, fdf->cam->ay, fdf->cam->az);
 		update_figure(NULL, fdf, change_height_down);
 		update_figure(SCALEZ, fdf, update_rotatation);
-		printf("\n");
+		if (fdf->debug)
+			ft_printf("\n");
 	}
 }
 
@@ -88,47 +76,13 @@ static void	projection_select(t_fdf *fdf)
 	else if (fdf->type_of_proj == ISO21)
 		fdf->type_of_proj = PERSPECTIVE;
 	else if (fdf->type_of_proj == PERSPECTIVE)
-		fdf->type_of_proj = TRUEISO;
-}
-
-void		print_map(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf)
-{
-	(void)fdf;
-	(void)src;
-	if (!shift)
-		printf("% 6.3f % 6.3f % 6.3f\n", src->x, src->y, src->z);
-	else if (shift[0])
-		printf("% 6.3f % 6.3f % 6.3f\n", src->x, src->y, src->z);
-	else if (shift[1])
-		printf("% 6.3f % 6.3f % 6.3f\n", dst->x, dst->y, dst->z);
-}
-
-void		print_projected_map(t_fdf *fdf)
-{
-	t_dot *src;
-
-	if (!fdf)
-		return ;
-	src = fdf->proj->dot;
-	while (1)
-	{
-		printf("% 6.3f % 6.3f % 6.3f\n", src->x, src->y, src->z);
-		src = src->next;
-		if (src->last && src->down)
-		{
-			printf("% 6.3f % 6.3f % 6.3f\n", src->x, src->y, src->z);
-			src = src->next->down;
-		}
-		if (!(src->down) && src->last)
-			break ;
-	}
-	printf("% 6.3f % 6.3f % 6.3f\n", src->x, src->y, src->z);
+		fdf->type_of_proj = PERSPECTIVE;
 }
 
 int			key_press(int key, t_fdf *fdf)
 {
 	if (key == LSHIFT || key == RSHIFT)
-		fdf->cam->move_speed = 30;
+		fdf->cam->move_speed = 80;
 	else if (key == LCTRL || key == RCTRL)
 		fdf->cam->rotation_speed = 4;
 	else if (key == UP || key == DOWN || key == RIGHT ||
@@ -146,35 +100,10 @@ int			key_press(int key, t_fdf *fdf)
 	else if ((key == W_KEY || key == S_KEY) && fdf->type_of_proj == PERSPECTIVE)
 		change_distance(key, fdf);
 	else if (key == R_KEY)
-		reset(NULL, fdf, reset_transform);
+		reset(fdf, reset_transform);
 	else if (key == ESC)
 		terminate(&fdf);
-	else if (key == 6)
-	{
-		printf("map\n");
-		update_figure(NULL, fdf, print_map);
-		printf("\n");
-	}
-	else if (key == 7)
-	{
-		printf("transform\n");
-		update_figure(SHIFTX, fdf, print_map);
-		printf("\n");
-	}
-	else if (key == 8)
-	{
-		printf("rotate\n");
-		update_figure(SHIFTY, fdf, print_map);
-		printf("\n");
-	}
-	else if (key == 9)
-	{
-		printf("projected map\n");
-		print_projected_map(fdf);
-		printf("\n");
-	}
-	else if (key == 0)
-		printf("ax: %f ay: %f az: %f\n\n", fdf->cam->ax, fdf->cam->ay, fdf->cam->az);
+	key_press2(key, fdf);
 	draw(fdf);
 	return (0);
 }

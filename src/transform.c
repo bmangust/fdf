@@ -20,49 +20,13 @@ void	change_height_up(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf)
 	dst->z *= SCALEZ[2];
 }
 
-void	change_height_down(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf)
+void	change_height_down(float const *shift, t_dot *src,
+							t_dot *dst, t_fdf *fdf)
 {
 	(void)src;
 	(void)shift;
 	(void)fdf;
 	dst->z *= SCALENZ[2];
-}
-
-void	update_rotatation(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf)
-{
-	double	a;
-	double	b;
-	double	y;
-
-	(void)shift;
-	a = fdf->cam->ax;
-	b = fdf->cam->ay;
-	y = fdf->cam->az;
-	//R
-//	dst->x = src->x * (cos(a) * cos(y) - sin(a) * cos(b) * sin(y)) +
-//			src->y * (cos(a) * sin(y) + sin(a) * cos(b) * cos(y)) +
-//			src->z * sin(a) * sin(b);
-//	dst->y = src->z * cos(a) * sin(b) -
-//			src->x * (sin(a) * cos(y) + cos(a) * cos(b) * sin(y)) -
-//			src->y * (sin(a) * sin(y) - cos(a) * cos(b) * cos(y));
-//	dst->z = src->z * cos(b) +
-//			src->x * sin(b) * sin(y) -
-//			src->y * sin(b) * cos(y);
-
-	//R'
-	dst->x = src->x * (cos(a) * cos(y) - sin(a) * cos(b) * sin(y)) -
-			src->y * (sin(a) * cos(y) + cos(a) * cos(b) * sin(y)) +
-			src->z * sin(b) * sin(y);
-	dst->y = src->x * (cos(a) * sin(y) + sin(a) * cos(b) * cos(y)) -
-			src->y * (sin(a) * sin(y) - cos(a) * cos(b) * cos(y)) -
-			src->z * sin(b) * cos(y);
-	dst->z = src->x * sin(a) * sin(b) + src->y * cos(a) * sin(b) +
-			src->z * cos(b);
-
-//	rotate_z(NULL, src, dst, fdf);
-//	rotate_x(NULL, dst, dst, fdf);
-//	rotate_z(NULL, dst, dst, fdf);
-	printf("% 6.3f % 6.3f % 6.3f\n", dst->x, dst->y, dst->z);
 }
 
 void	rotate(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf)
@@ -92,15 +56,6 @@ void	rotate(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf)
 		dst->x = i[0];
 		dst->y = i[1];
 	}
-}
-
-void	shift_figure(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf)
-{
-	(void)fdf;
-	(void)src;
-	dst->x += shift[0];
-	dst->y += shift[1];
-	dst->z += shift[2] * 5;
 }
 
 void	change_scale(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf)

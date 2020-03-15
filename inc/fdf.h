@@ -22,7 +22,7 @@
 # include <sys/types.h>
 # include <sys/stat.h>
 # include <fcntl.h>
-# include "libft.h"
+# include "ft_printf.h"
 # include "mlx.h"
 
 /*
@@ -58,13 +58,9 @@
 # define CLOSE 17
 # define LCTRL 256
 # define LSHIFT 257
+# define LCMND 259
 # define RSHIFT 258
 # define RCTRL 269
-# define LMB 1
-# define RMB 2
-# define MMB 3
-# define WHUP 4
-# define WHDN 5
 # define NUMPLUS 69
 # define NUMMINUS 78
 # define PLUS 24
@@ -79,7 +75,7 @@
 # define XBIAS IMAGE_WIDTH / 2
 # define YBIAS IMAGE_HEIGHT / 2
 # define STEP 1
-# define MENU_HEIGHT 150
+# define MENU_HEIGHT 160
 # define SHIFTX (float[3]) {STEP, 0, 0}
 # define SHIFTNX (float[3]) {-STEP, 0, 0}
 # define SHIFTY (float[3]) {0, STEP, 0}
@@ -92,7 +88,6 @@
 # define ISO21_ANGLE 0.46373398
 # define ROT_ANGLE 0.0872664626
 # define BITS_PER_PIXEL 32
-# define ENDIAN 0
 # define TRUEISO 1
 # define ISO21 2
 # define PERSPECTIVE 3
@@ -114,6 +109,7 @@
 # define PURPLEGOLD 2
 # define SHADESBLUE 3
 # define SINGLECOLOR 4
+# define NUMCOLORS 5
 
 typedef struct		s_window
 {
@@ -122,17 +118,11 @@ typedef struct		s_window
 	void			*img;
 	int				width;
 	int				height;
-	int				clicked;
+	int				menu_height;
 	int				bits_per_pixel;
 	int				size_line;
 	int				endian;
 }					t_window;
-
-typedef struct		s_coord
-{
-	int				x;
-	int				y;
-}					t_coord;
 
 typedef struct		s_dot
 {
@@ -182,6 +172,7 @@ typedef struct		s_fdf
 	int				xyscale;
 	int				colorsceme;
 	int				color;
+	int				debug;
 	int				type_of_proj;
 }					t_fdf;
 
@@ -197,15 +188,15 @@ t_dot				*attach_row(t_dot **header, t_dot *row);
 void				key_hooks(t_fdf *fdf);
 void				update_figure(float const *shift, t_fdf *fdf, void(*f)
 						(float const *shift, t_dot *, t_dot*, t_fdf *fdf));
-void				reset(float const *shift, t_fdf *fdf, void(*f)
-						(t_dot *, t_dot *, t_dot*, t_fdf *fdf));
+void				reset(t_fdf *fdf,
+						void(*f)(t_dot *, t_dot *, t_dot*, t_fdf *fdf));
 void				rotate(float const *shift, t_dot *dst,
-						t_dot *src, t_fdf *fdf);
+								t_dot *src, t_fdf *fdf);
 void				change_distance(int key, t_fdf *fdf);
 void				color_select(t_fdf *fdf, int key);
 int					key_press(int key, t_fdf *fdf);
-void				shift_figure(float const *shift, t_dot *dot,
-								t_dot *dst, t_fdf *fdf);
+void				key_press2(int key, t_fdf *fdf);
+void				key_debug(int key, t_fdf *fdf);
 void				change_scale(float const *shift, t_dot *dot,
 								t_dot *dst, t_fdf *fdf);
 void				reset_transform(t_dot *src, t_dot *trf,
@@ -213,7 +204,7 @@ void				reset_transform(t_dot *src, t_dot *trf,
 void				change_height_up(float const *shift, t_dot *src,
 								t_dot *dst, t_fdf *fdf);
 void				change_height_down(float const *shift, t_dot *src,
-									 t_dot *dst, t_fdf *fdf);
+								t_dot *dst, t_fdf *fdf);
 void				change_color(t_fdf *fdf);
 void				set_max_min_colors(t_fdf *fdf);
 uint32_t			get_color(t_dot current, t_dot start, t_dot end,
@@ -238,10 +229,12 @@ void				project(t_fdf *fdf, double proj_a, void(f)(t_dot*, t_dot*,
 								double, t_fdf*));
 int					get_light(double start, double end, double percentage);
 double				percent(double start, double end, double current);
-void				project_one_by_one(t_fdf *fdf);
-void	rotate_x(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf);
-void	rotate_y(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf);
-void	rotate_z(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf);
-void	update_rotatation(float const *shift, t_dot *src, t_dot *dst, t_fdf *fdf);
+void				update_rotatation(float const *shift, t_dot *src,
+								t_dot *dst, t_fdf *fdf);
+void				print_projected_map(t_fdf *fdf);
+void				print_map(float const *shift, t_dot *src,
+								t_dot *dst, t_fdf *fdf);
+void				rotate_update(int key, t_fdf *fdf);
+void				print_debug_menu(t_fdf *fdf, void *mlx, void *win);
 
 #endif
