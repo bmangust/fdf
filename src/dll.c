@@ -83,7 +83,6 @@ t_dot	*attach_row(t_dot **header, t_dot *row)
 	while (1)
 	{
 		temp->up = temp_header->up;
-		temp->down = NULL;
 		temp_header->up->down = temp;
 		temp_header->up = temp;
 		temp = temp->next;

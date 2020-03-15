@@ -21,9 +21,11 @@ int		main(int ac, char **av)
 	t_map		*map;
 
 	(void)ac;
-	mlx = mlx_init();
-	win = mlx_new_window(mlx, IMAGE_WIDTH, IMAGE_HEIGHT, "mlx42");
-	img = mlx_new_image(mlx, IMAGE_WIDTH, IMAGE_HEIGHT);
+	if ((mlx = mlx_init()) &&
+		(win = mlx_new_window(mlx, IMAGE_WIDTH, IMAGE_HEIGHT, "mlx42")))
+			img = mlx_new_image(mlx, IMAGE_WIDTH, IMAGE_HEIGHT);
+	else
+		return (0);
 	map = new_map();
 	if (input(av[1], map) == ERROR)
 	{

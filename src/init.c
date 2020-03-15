@@ -26,7 +26,7 @@ t_dot		*new_dot(double x, double y, double z)
 	new->last = 1;
 	new->color = new->z == 0 ? BLACK : WHITE;
 	new->up = new;
-	new->down = new;
+	new->down = NULL;
 	new->next = new;
 	new->prev = new;
 	return (new);

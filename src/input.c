@@ -119,6 +119,9 @@ int			input(char *file, t_map *map)
 	{
 		ft_strdel(&line);
 		clear_map(&map);
+		ft_printf("{GREEN}usage: ./fdf test_maps/42.fdf{DEFAULT}\n");
+		ft_printf("{RED}not a valid map, sorry{DEFAULT}\n");
+		ft_printf("need a rectangular map with only integers\n");
 		return (ERROR);
 	}
 	return (OK);
